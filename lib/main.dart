@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const RightNowApp());
-}
+void main() => runApp(const RightNowApp());
 
 class RightNowApp extends StatelessWidget {
   const RightNowApp({super.key});
@@ -11,174 +9,167 @@ class RightNowApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-        fontFamily: 'Roboto',
-      ),
-      home: const RightNowHomeScreen(),
+      theme: ThemeData(primarySwatch: Colors.orange, fontFamily: 'Pretendard'),
+      home: const MainScreen(),
     );
   }
 }
 
-class RightNowHomeScreen extends StatelessWidget {
-  const RightNowHomeScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF2F4F7),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('RIGHT NOW', 
-          style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.w900, fontSize: 26, letterSpacing: -1)),
+        title: const Text('당장 (Right Now)', 
+          style: TextStyle(color: Colors.orange, fontWeight: FontWeight.black, fontSize: 22)),
+        centerTitle: false,
         actions: [
-          IconButton(icon: const Icon(Icons.search, color: Colors.black, size: 28), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black, size: 28), onPressed: () {}),
-          const SizedBox(width: 10),
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.wallet, color: Colors.black54),
+            label: const Text('3,500P ', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeroBanner(),
-            _buildCategorySection(),
-            _buildSectionTitle('Real-time Urgent Jobs 🔥'),
-            _buildJobCard('Cafe Staff (3hrs)', '15,000 KRW/hr', 'Today 18:00 - 21:00', 'Gangnam-gu'),
-            _buildJobCard('Warehouse Assistant', '65,000 KRW/task', 'Tomorrow 09:00', 'Seocho-gu'),
-            _buildJobCard('Event Support Staff', '12,000 KRW/hr', '4/16(Thu) All day', 'Songpa-gu'),
-            const SizedBox(height: 100), // 여백
+            _buildActionBanner(),
+            _buildSectionHeader("내 근처 실시간 심부름 🔥"),
+            _buildErrandCard("편의점 음료수 2캔 사다주실 분!", "3,000원", "500m 이내", "방금 전"),
+            _buildErrandCard("우체국 택배 대신 보내주기", "5,000원", "800m 이내", "3분 전"),
+            _buildErrandCard("강아지 산책 15분만 도와주세요", "7,000원", "1.2km 이내", "10분 전"),
           ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.deepOrange,
-        unselectedItemColor: Colors.grey[400],
+        selectedItemColor: Colors.orange,
+        unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.location_on_outlined), label: 'Near Me'),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Status'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'My Page'),
+          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '당장신청'),
+          BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: '주변지도'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '채팅'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: Colors.deepOrange,
-        icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-        label: const Text('Post a Job', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        onPressed: () => _showRequestDialog(context),
+        backgroundColor: Colors.orange,
+        label: const Text('심부름 요청하기', style: TextStyle(fontWeight: FontWeight.bold)),
+        icon: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildHeroBanner() {
+  Widget _buildActionBanner() {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(25),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.orange[400]!, Colors.deepOrange]),
+        gradient: const LinearGradient(colors: [Colors.orange, Colors.darkOrange]),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Need help\nRight Now?', 
-            style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold, height: 1.2)),
-          SizedBox(height: 10),
-          Text('Connect with nearby part-timers instantly.', 
-            style: TextStyle(color: Colors.white70, fontSize: 15)),
+          Text('누구나 수익을 만드는 앱테크', style: TextStyle(color: Colors.white70, fontSize: 14)),
+          SizedBox(height: 8),
+          Text('지금 바로 근처에서\n도움을 주고 돈을 벌어보세요!', 
+            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.3)),
         ],
       ),
     );
   }
 
-  Widget _buildCategorySection() {
-    return SizedBox(
-      height: 110,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        children: [
-          _buildCategoryItem(Icons.restaurant, 'F&B'),
-          _buildCategoryItem(Icons.local_shipping, 'Delivery'),
-          _buildCategoryItem(Icons.store, 'Retail'),
-          _buildCategoryItem(Icons.cleaning_services, 'Cleaning'),
-          _buildCategoryItem(Icons.event, 'Events'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryItem(IconData icon, String label) {
+  Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(color: Colors.orange[50], shape: BoxShape.circle),
-            child: Icon(icon, color: Colors.deepOrange, size: 28),
-          ),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 25, 20, 15),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const Text('See all', style: TextStyle(color: Colors.grey, fontSize: 14)),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('전체보기', style: TextStyle(color: Colors.grey, fontSize: 13)),
         ],
       ),
     );
   }
 
-  Widget _buildJobCard(String title, String pay, String time, String loc) {
+  Widget _buildErrandCard(String title, String price, String distance, String time) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15)),
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-              Container(padding: const EdgeInsets.all(5), color: Colors.red[50], child: const Text('Urgent', style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold))),
-            ],
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: Colors.orange[50], shape: BoxShape.circle),
+            child: const Icon(Icons.run_circle_outlined, color: Colors.orange),
           ),
-          const SizedBox(height: 12),
-          Text(pay, style: const TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.w800, fontSize: 18)),
-          const SizedBox(height: 10),
-          Row(
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text('$distance | $time', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Icon(Icons.access_time, size: 14, color: Colors.grey[400]),
-              const SizedBox(width: 5),
-              Text(time, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-              const SizedBox(width: 15),
-              Icon(Icons.location_on_outlined, size: 14, color: Colors.grey[400]),
-              const SizedBox(width: 5),
-              Text(loc, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+              Text(price, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.black, fontSize: 17)),
+              const Text('지급확정', style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showRequestDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('심부름 요청하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            const TextField(decoration: InputDecoration(hintText: '무엇을 도와드릴까요? (예: 음료수 사다주기)')),
+            const SizedBox(height: 15),
+            const TextField(decoration: InputDecoration(hintText: '사례금 입력 (원)'), keyboardType: TextInputType.number),
+            const SizedBox(height: 25),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('요청이 게시되었습니다! 근처 이웃에게 알림을 보냅니다.')));
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                child: const Text('등록하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
