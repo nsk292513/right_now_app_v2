@@ -9,7 +9,7 @@ class RightNowApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange, fontFamily: 'Pretendard'),
+      theme: ThemeData(primarySwatch: Colors.orange),
       home: const MainScreen(),
     );
   }
@@ -31,24 +31,22 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text('당장 (Right Now)', 
-          style: TextStyle(color: Colors.orange, fontWeight: FontWeight.black, fontSize: 22)),
-        centerTitle: false,
+          style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 22)),
         actions: [
-          TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.wallet, color: Colors.black54),
-            label: const Text('3,500P ', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          Padding(
+            padding: const EdgeInsets.only(right: 15),
+            child: Center(child: Text('3,500P', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold))),
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildActionBanner(),
-            _buildSectionHeader("내 근처 실시간 심부름 🔥"),
-            _buildErrandCard("편의점 음료수 2캔 사다주실 분!", "3,000원", "500m 이내", "방금 전"),
-            _buildErrandCard("우체국 택배 대신 보내주기", "5,000원", "800m 이내", "3분 전"),
-            _buildErrandCard("강아지 산책 15분만 도와주세요", "7,000원", "1.2km 이내", "10분 전"),
+            _banner(),
+            _header("내 근처 실시간 심부름 🔥"),
+            _card("편의점 음료수 2캔 사다주실 분!", "3,000원", "500m", "방금 전"),
+            _card("우체국 택배 대신 보내주기", "5,000원", "800m", "3분 전"),
+            _card("강아지 산책 15분만 도와주세요", "7,000원", "1.2km", "10분 전"),
           ],
         ),
       ),
@@ -64,21 +62,21 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showRequestDialog(context),
+        onPressed: () {},
         backgroundColor: Colors.orange,
-        label: const Text('심부름 요청하기', style: TextStyle(fontWeight: FontWeight.bold)),
-        icon: const Icon(Icons.add),
+        label: const Text('심부름 요청하기', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        icon: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildActionBanner() {
+  Widget _banner() {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Colors.orange, Colors.darkOrange]),
+        gradient: const LinearGradient(colors: [Colors.orange, Colors.redAccent]),
         borderRadius: BorderRadius.circular(20),
       ),
       child: const Column(
@@ -93,20 +91,20 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _header(String t) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(t, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const Text('전체보기', style: TextStyle(color: Colors.grey, fontSize: 13)),
         ],
       ),
     );
   }
 
-  Widget _buildErrandCard(String title, String price, String distance, String time) {
+  Widget _card(String t, String p, String d, String tm) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.all(16),
@@ -123,53 +121,20 @@ class _MainScreenState extends State<MainScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(t, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                 const SizedBox(height: 4),
-                Text('$distance | $time', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                Text('$d | $tm', style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(price, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.black, fontSize: 17)),
+              Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 16)),
               const Text('지급확정', style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  void _showRequestDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(25),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('심부름 요청하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
-            const TextField(decoration: InputDecoration(hintText: '무엇을 도와드릴까요? (예: 음료수 사다주기)')),
-            const SizedBox(height: 15),
-            const TextField(decoration: InputDecoration(hintText: '사례금 입력 (원)'), keyboardType: TextInputType.number),
-            const SizedBox(height: 25),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('요청이 게시되었습니다! 근처 이웃에게 알림을 보냅니다.')));
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                child: const Text('등록하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
