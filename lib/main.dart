@@ -8,7 +8,11 @@ class RightNowApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange),
+      theme: ThemeData(
+        primarySwatch: Colors.orange,
+        fontFamily: 'Pretendard',
+        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+      ),
       home: const MainNavigation(),
     );
   }
@@ -22,168 +26,226 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [
-    const HomeScreen(),
-    const Center(child: Text('주변 지도에서 당장 찾기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-    const Center(child: Text('새로운 채팅 메시지가 없습니다', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-    const Center(child: Text('내 프로필 및 앱테크 정산', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-  ];
+  bool _isOrderMode = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        title: Row(
+          children: [
+            const Text('당장', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900, fontSize: 26)),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(color: _isOrderMode ? Colors.blue[50] : Colors.green[50], borderRadius: BorderRadius.circular(5)),
+              child: Text(_isOrderMode ? '주문자 모드' : '수수행자 모드', 
+                style: TextStyle(color: _isOrderMode ? Colors.blue : Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        actions: [
+          const Center(child: Text('모드전환', style: TextStyle(color: Colors.grey, fontSize: 12))),
+          Switch(
+            value: _isOrderMode,
+            onChanged: (v) => setState(() => _isOrderMode = v),
+            activeColor: Colors.orange,
+          ),
+          const SizedBox(width: 10),
+        ],
+      ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildHome(),
+          _buildMap(),
+          _buildChat(),
+          _buildProfile(),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
         selectedItemColor: Colors.orange[900],
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Colors.grey[400],
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '당장신청'),
-          BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: '주변지도'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '채팅'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
-        ],
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  String _selectedCat = '전체';
-  final List<String> _categories = ['전체', '편의점', '배달', '청소', '심부름'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
-        title: const Text('당장 (Right Now)', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900, fontSize: 24)),
-        actions: [
-          IconButton(icon: const Icon(Icons.search, color: Colors.black), onPressed: () {}),
-          const Icon(Icons.notifications_none, color: Colors.black),
-          const SizedBox(width: 15),
-        ],
-      ),
-      body: Column(
-        children: [
-          _buildHero(),
-          _buildCategoryBar(),
-          Expanded(
-            child: ListView(
-              children: _buildFilteredList(),
-            ),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '당장신청'),
+          const BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: '주변지도'),
+          BottomNavigationBarItem(
+            icon: Badge(label: const Text('1'), child: const Icon(Icons.chat_bubble_outline)), 
+            label: '채팅'
           ),
+          const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
         ],
       ),
     );
   }
 
-  Widget _buildHero() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Colors.orange, Colors.deepOrangeAccent]),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('지금 바로 수익내기', style: TextStyle(color: Colors.white70, fontSize: 14)),
-          SizedBox(height: 8),
-          Text('근처 500m 이내의\n도움을 당장 시작하세요!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.3)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryBar() {
-    return SizedBox(
-      height: 60,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: _categories.length,
-        itemBuilder: (context, i) {
-          bool isSel = _selectedCat == _categories[i];
-          return GestureDetector(
-            onTap: () => setState(() => _selectedCat = _categories[i]),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                color: isSel ? Colors.orange[900] : Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: isSel ? Colors.orange[900]! : Colors.grey[300]!),
-              ),
-              child: Center(child: Text(_categories[i], style: TextStyle(color: isSel ? Colors.white : Colors.black, fontWeight: FontWeight.bold))),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  List<Widget> _buildFilteredList() {
-    List<Widget> items = [];
-    if (_selectedCat == '전체' || _selectedCat == '편의점') {
-      items.add(_buildItem("편의점 음료수 사다주기", "3,000원", "역삼동", "300m", "편의점"));
-    }
-    if (_selectedCat == '전체' || _selectedCat == '배달') {
-      items.add(_buildItem("음식 배달 대행 (급구)", "5,000원", "논현동", "600m", "배달"));
-    }
-    if (_selectedCat == '전체' || _selectedCat == '청소') {
-      items.add(_buildItem("사무실 쓰레기 분리수거", "10,000원", "삼성동", "1.2km", "청소"));
-    }
-    if (_selectedCat == '전체' || _selectedCat == '심부름') {
-      items.add(_buildItem("강아지 산책 20분", "7,000원", "대치동", "900m", "심부름"));
-    }
-    return items;
-  }
-
-  Widget _buildItem(String t, String p, String l, String d, String tag) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey[200]!)),
+  Widget _buildHome() {
+    return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(t, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-              Text(tag, style: const TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
-            ],
+          _buildHeroBanner(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            child: Text(_isOrderMode ? "나의 요청 현황" : "수행 가능한 심부름", 
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(p, style: TextStyle(color: Colors.orange[900], fontWeight: FontWeight.w900, fontSize: 18)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(8)),
-                child: const Text('수락하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text('$l | $d', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+          if (_isOrderMode) ...[
+            _buildCard("편의점 음료수 2캔", "3,000원", "매칭 대기 중", Icons.timer_outlined, Colors.orange),
+            _buildCard("우체국 택배 대행", "5,000원", "결제 완료", Icons.check_circle, Colors.blue),
+          ] else ...[
+            _buildCard("생수 묶음 배달", "4,000원", "250m 이내", Icons.location_on, Colors.green),
+            _buildCard("강아지 산책 도우미", "10,000원", "600m 이내", Icons.pets, Colors.brown),
+            _buildCard("쓰레기 분리수거", "3,000원", "150m 이내", Icons.delete_outline, Colors.grey),
+          ],
         ],
       ),
     );
+  }
+
+  Widget _buildHeroBanner() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: _isOrderMode ? [Colors.blue[400]!, Colors.blue[700]!] : [Colors.orange[400]!, Colors.orange[800]!]),
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 5))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_isOrderMode ? '누군가의 도움이 필요한가요?' : '지금 바로 수익을 만드세요', 
+            style: const TextStyle(color: Colors.white70, fontSize: 14)),
+          const SizedBox(height: 8),
+          Text(_isOrderMode ? '당장 요청하고\n시간을 아끼세요!' : '내 주변 심부름\n오늘의 앱테크 시작!', 
+            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, height: 1.3)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCard(String t, String p, String s, IconData i, Color c) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)]),
+      child: Row(
+        children: [
+          CircleAvatar(backgroundColor: c.withOpacity(0.1), child: Icon(i, color: c)),
+          const SizedBox(width: 15),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(t, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(s, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          ])),
+          Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.black, fontSize: 17)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMap() {
+    return Column(
+      children: [
+        Expanded(
+          flex: 2,
+          child: Container(
+            width: double.infinity,
+            color: Colors.orange[50],
+            child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.my_location, size: 40, color: Colors.orange),
+              SizedBox(height: 10),
+              Text('실시간 내 주변 지도 (강남구 역삼동)', style: TextStyle(fontWeight: FontWeight.bold)),
+            ]),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              const Text('가까운 거리순 이웃', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 15),
+              _buildUserRow('김당장 (수행자)', '200m', '별점 5.0'),
+              _buildUserRow('이이웃 (주문자)', '350m', '별점 4.9'),
+              _buildUserRow('박번개 (수행자)', '500m', '별점 4.8'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserRow(String n, String d, String s) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Row(children: [
+        const CircleAvatar(backgroundImage: NetworkImage('https://via.placeholder.com/150')),
+        const SizedBox(width: 15),
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(n, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text('$d | $s', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        ]),
+        const Spacer(),
+        OutlinedButton(onPressed: () {}, child: const Text('지정요청')),
+      ]),
+    );
+  }
+
+  Widget _buildChat() {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              _chatBubble('주문자', '편의점에서 콜라 2캔 맞으시죠?', '오후 2:10', false),
+              _chatBubble('수행자', '네 맞습니다! 지금 구매 완료했어요.', '오후 2:12', true),
+              _chatBubble('주문자', '감사합니다. 도착하시면 수락 눌러드릴게요!', '오후 2:13', false),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(15),
+          color: Colors.white,
+          child: Row(children: [
+            const Icon(Icons.add_circle_outline, color: Colors.grey),
+            const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: TextField(decoration: InputDecoration(hintText: '메시지 입력...', border: InputBorder.none)))),
+            const Icon(Icons.send, color: Colors.orange),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  Widget _chatBubble(String sender, String msg, String time, bool isMe) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Text(sender, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          const SizedBox(height: 5),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: isMe ? Colors.orange : Colors.grey[200], borderRadius: BorderRadius.circular(15)),
+            child: Text(msg, style: TextStyle(color: isMe ? Colors.white : Colors.black)),
+          ),
+          const SizedBox(height: 2),
+          Text(time, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfile() {
+    return const Center(child: Text('프로필 및 정산 관리 화면'));
   }
 }
