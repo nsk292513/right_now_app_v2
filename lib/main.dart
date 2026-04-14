@@ -4,54 +4,40 @@ void main() => runApp(const RightNowApp());
 
 class RightNowApp extends StatelessWidget {
   const RightNowApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange),
-      home: const MainScreen(),
+      theme: ThemeData(primarySwatch: Colors.orange, fontFamily: 'Pretendard'),
+      home: const MainNavigation(),
     );
   }
 }
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
-
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<MainNavigation> createState() => _MainNavigationState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainNavigationState extends State<MainNavigation> {
+  int _selectedIndex = 0;
+  
+  final List<Widget> _pages = [
+    const HomeScreen(),
+    const Center(child: Text('주변 지도 서비스 준비 중', style: TextStyle(fontSize: 18))),
+    const Center(child: Text('채팅 목록이 없습니다', style: TextStyle(fontSize: 18))),
+    const Center(child: Text('내 프로필 설정', style: TextStyle(fontSize: 18))),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text('당장 (Right Now)', 
-          style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 22)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 15),
-            child: Center(child: Text('3,500P', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold))),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _banner(),
-            _header("내 근처 실시간 심부름 🔥"),
-            _card("편의점 음료수 2캔 사다주실 분!", "3,000원", "500m", "방금 전"),
-            _card("우체국 택배 대신 보내주기", "5,000원", "800m", "3분 전"),
-            _card("강아지 산책 15분만 도와주세요", "7,000원", "1.2km", "10분 전"),
-          ],
-        ),
-      ),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.orange,
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
+        selectedItemColor: Colors.orange[900],
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
@@ -61,77 +47,143 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: Colors.orange,
-        label: const Text('심부름 요청하기', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        icon: const Icon(Icons.add, color: Colors.white),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _selectedCat = '전체';
+  final List<String> _categories = ['전체', '편의점', '배달', '청소', '단기알바'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('당장', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.black, fontSize: 26)),
+        actions: [
+          IconButton(icon: const Icon(Icons.search, color: Colors.black), onPressed: () {}),
+          const CircleAvatar(backgroundColor: Colors.orange, radius: 15, child: Icon(Icons.person, size: 20, color: Colors.white)),
+          const SizedBox(width: 15),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHero(),
+            _buildCategoryBar(),
+            _buildSectionTitle("실시간 급구 심부름"),
+            _buildItem("편의점 음료수 사다주기", "3,000원", "역삼동", "300m"),
+            _buildItem("강아지 산책 (30분)", "8,000원", "논현동", "800m"),
+            _buildItem("택배 보관함 대신 수령", "2,000원", "삼성동", "1.2km"),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _banner() {
+  Widget _buildHero() {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Colors.orange, Colors.redAccent]),
-        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(colors: [Color(0xFFFF8C00), Color(0xFFFF4500)]),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))],
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('누구나 수익을 만드는 앱테크', style: TextStyle(color: Colors.white70, fontSize: 14)),
+          Text('근처에서 바로 수익내기', style: TextStyle(color: Colors.white70, fontSize: 14)),
           SizedBox(height: 8),
-          Text('지금 바로 근처에서\n도움을 주고 돈을 벌어보세요!', 
-            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.3)),
+          Text('가장 가까운 도움을\n당장 수락해보세요!', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, height: 1.3)),
         ],
       ),
     );
   }
 
-  Widget _header(String t) {
+  Widget _buildCategoryBar() {
+    return SizedBox(
+      height: 60,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemCount: _categories.length,
+        itemBuilder: (context, i) {
+          bool isSel = _selectedCat == _categories[i];
+          return GestureDetector(
+            onTap: () => setState(() => _selectedCat = _categories[i]),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: isSel ? Colors.orange[900] : Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [if (!isSel) BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)],
+              ),
+              child: Center(child: Text(_categories[i], style: TextStyle(color: isSel ? Colors.white : Colors.black, fontWeight: FontWeight.bold))),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String t) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(t, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const Text('전체보기', style: TextStyle(color: Colors.grey, fontSize: 13)),
+          const Icon(Icons.tune, size: 20, color: Colors.grey),
         ],
       ),
     );
   }
 
-  Widget _card(String t, String p, String d, String tm) {
+  Widget _buildItem(String t, String p, String l, String d) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15)),
-      child: Row(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey[200]!)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.orange[50], shape: BoxShape.circle),
-            child: const Icon(Icons.run_circle_outlined, color: Colors.orange),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(t, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text('$d | $tm', style: const TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 16)),
-              const Text('지급확정', style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
+              Text(t, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              const Text('진행중', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(p, style: TextStyle(color: Colors.orange[900], fontWeight: FontWeight.w900, fontSize: 20)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(8)),
+                child: const Text('수락하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+              ),
+            ],
+          ),
+          const Divider(height: 25),
+          Row(
+            children: [
+              const Icon(Icons.location_on, size: 14, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text('$l ($d)', style: const TextStyle(color: Colors.grey, fontSize: 13)),
             ],
           ),
         ],
