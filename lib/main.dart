@@ -1,53 +1,119 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:geolocator/geolocator.dart'; // GPS 기능
+import 'package:permission_handler/permission_handler.dart'; // 권한 관리
 
-void main() => runApp(const DangJangRealSystem());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // 파이어베이스 초기화
+  runApp(const DangJangApp());
+}
 
-class DangJangRealSystem extends StatelessWidget {
-  const DangJangRealSystem({super.key});
+class DangJangApp extends StatelessWidget {
+  const DangJangApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: '당장(Right Now)',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange),
-      home: const InstallationGate(), // 최초 실행 시 시스템 권한 요청 관문
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
+      home: const AuthWrapper(),
     );
   }
 }
 
-// [SERVER SESSION] 실제 하드웨어 및 서버 데이터 저장소
-class AppSession {
-  static String? email;   // 실제 선택된 구글 이메일
-  static String? name;    // 실제 구글 사용자명
-  static bool isGpsOk = false;
-  static bool isSmsOk = false;
-}
+// [로그인 상태 감시자]
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
 
-// 1. [실제 동작] 안드로이드 시스템 권한 요청 (OS 레벨 팝업)
-class InstallationGate extends StatefulWidget {
-  const InstallationGate({super.key});
   @override
-  State<InstallationGate> createState() => _InstallationGateState();
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) return const MainServiceScreen(); // 로그인 완료 시 메인으로
+        return const LoginSelectionScreen(); // 미로그인 시 로그인 화면으로
+      },
+    );
+  }
 }
 
-class _InstallationGateState extends State<InstallationGate> {
-  void _requestSystemAccess() {
+// -------------------------------------------------------------------
+// 1. 통합 로그인 화면 (구글 로그인 + SMS 인증 진입)
+// -------------------------------------------------------------------
+class LoginSelectionScreen extends StatefulWidget {
+  const LoginSelectionScreen({super.key});
+
+  @override
+  State<LoginSelectionScreen> createState() => _LoginSelectionScreenState();
+}
+
+class _LoginSelectionScreenState extends State<LoginSelectionScreen> {
+  final TextEditingController _phoneController = TextEditingController();
+  bool _isSending = false;
+
+  // [기능 1] 실제 구글 로그인 로직
+  Future<void> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return;
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential);
+    } catch (e) {
+      _showError("구글 로그인 실패: $e");
+    }
+  }
+
+  // [기능 2] 실제 SMS 문자 인증 번호 발송
+  Future<void> _verifyPhoneNumber() async {
+    String phone = _phoneController.text.trim();
+    if (phone.isEmpty) return;
+    
+    setState(() => _isSending = true);
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phone, // 예: +821012345678
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        _showError("인증 실패: ${e.message}");
+        setState(() => _isSending = false);
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        setState(() => _isSending = false);
+        _showOtpDialog(verificationId); // 번호 발송 후 입력창 띄움
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
+    );
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  void _showOtpDialog(String vId) {
+    final otpController = TextEditingController();
     showDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: const Text('시스템 권한 승인'),
-        content: const Text("'당장' 앱이 실제 위치 기반 매칭을 위해 이 기기의 GPS 정보와 안심번호 통화 기능에 액세스하도록 허용하시겠습니까?"),
+      builder: (context) => AlertDialog(
+        title: const Text("인증번호 입력"),
+        content: TextField(controller: otpController, keyboardType: TextInputType.number),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('거부')),
-          ElevatedButton(
-            onPressed: () {
-              AppSession.isGpsOk = true; // 실제 하드웨어 권한 획득
-              Navigator.pop(ctx);
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const GoogleLoginScreen()));
-            },
-            child: const Text('허용 및 계속'),
-          ),
+          TextButton(onPressed: () async {
+            final credential = PhoneAuthProvider.credential(
+              verificationId: vId,
+              smsCode: otpController.text.trim(),
+            );
+            await FirebaseAuth.instance.signInWithCredential(credential);
+            Navigator.pop(context);
+          }, child: const Text("확인"))
         ],
       ),
     );
@@ -57,52 +123,130 @@ class _InstallationGateState extends State<InstallationGate> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.security, size: 80, color: Colors.orange),
-            const SizedBox(height: 20),
-            const Text('상용 서비스 구동을 위한 안드로이드 설정', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
-            ElevatedButton(onPressed: _requestSystemAccess, child: const Text('앱 권한 설정 및 시작')),
-          ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(30),
+          child: Column(
+            children: [
+              const Text("당장", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Colors.blue)),
+              const SizedBox(height: 50),
+              // 구글 로그인 버튼
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _signInWithGoogle,
+                  icon: const Icon(Icons.login),
+                  label: const Text("구글 계정으로 시작"),
+                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 15)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text("또는"),
+              const SizedBox(height: 20),
+              // 휴대폰 인증 입력창
+              TextField(
+                controller: _phoneController,
+                decoration: const InputDecoration(labelText: "휴대폰 번호 (+8210...)"),
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: _isSending ? null : _verifyPhoneNumber,
+                  child: Text(_isSending ? "발송 중..." : "인증 문자 받기"),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// 2. [실제 동작] 실제 구글 계정 선택창 호출
-class GoogleLoginScreen extends StatelessWidget {
-  const GoogleLoginScreen({super.key});
+// -------------------------------------------------------------------
+// 2. 메인 서비스 화면 (GPS 위치 추적 기능 탑재)
+// -------------------------------------------------------------------
+class MainServiceScreen extends StatefulWidget {
+  const MainServiceScreen({super.key});
+
+  @override
+  State<MainServiceScreen> createState() => _MainServiceScreenState();
+}
+
+class _MainServiceScreenState extends State<MainServiceScreen> {
+  String _locationStatus = "위치 정보를 가져오는 중...";
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _determinePosition(); // 앱 켜자마자 GPS 위치 파악 시작
+  }
+
+  // [기능 3] 실제 GPS 위치 좌표 획득 로직
+  Future<void> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() => _locationStatus = "GPS가 꺼져 있습니다.");
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() => _locationStatus = "위치 권한이 거부되었습니다.");
+        return;
+      }
+    }
+
+    // 실제 현재 위도, 경도 좌표 가져오기
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _currentPosition = position;
+      _locationStatus = "위치 파악 완료";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.deepOrange])),
+      appBar: AppBar(
+        title: const Text("당장 - 서비스 센터"),
+        actions: [IconButton(onPressed: () => FirebaseAuth.instance.signOut(), icon: const Icon(Icons.logout))],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.bolt, size: 100, color: Colors.white),
-            const Text('당장', style: TextStyle(color: Colors.white, fontSize: 50, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 60),
-            InkWell(
-              onTap: () {
-                // 실제 구글 API 호출 후 이메일 수신 시뮬레이션
-                AppSession.email = "actual_user@gmail.com"; 
-                AppSession.name = "홍길동";
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MainServiceEngine()));
-              },
-              child: Container(
-                width: 320, height: 65,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(35)),
-                child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(Icons.account_circle, color: Colors.blue),
-                  SizedBox(width: 10),
-                  Text('Google 계정으로 회원가입', style: TextStyle(fontWeight: FontWeight.bold))
-                ]),
+            // GPS 상태 카드
+            Card(
+              color: Colors.blue.shade50,
+              child: ListTile(
+                leading: const Icon(Icons.gps_fixed, color: Colors.blue),
+                title: const Text("내 실시간 위치(GPS)"),
+                subtitle: Text(_currentPosition == null 
+                  ? _locationStatus 
+                  : "위도: ${_currentPosition!.latitude}\n경도: ${_currentPosition!.longitude}"),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // 긴급 버튼 서비스
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                children: [
+                  _buildMenuCard("긴급 호출", Icons.warning, Colors.red),
+                  _buildMenuCard("주변 병원", Icons.local_hospital, Colors.green),
+                  _buildMenuCard("안심 귀가", Icons.home, Colors.orange),
+                  _buildMenuCard("설정", Icons.settings, Colors.grey),
+                ],
               ),
             ),
           ],
@@ -110,73 +254,19 @@ class GoogleLoginScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-// 3. [실제 동작] 실제 문자 발송 및 코드 대조 (OTP)
-class MainServiceEngine extends StatefulWidget {
-  const MainServiceEngine({super.key});
-  @override
-  State<MainServiceEngine> createState() => _MainServiceEngineState();
-}
-
-class _MainServiceEngineState extends State<MainServiceEngine> {
-  int _idx = 0;
-
-  void _runSmsVerification() {
-    final phone = TextEditingController();
-    bool isSent = false;
-    showModalBottomSheet(
-      context: context, isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-      builder: (ctx) => StatefulBuilder(builder: (context, setModal) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom, top: 30, left: 30, right: 30),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('실제 상용 보안 인증', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 25),
-          TextField(controller: phone, decoration: InputDecoration(
-            labelText: "휴대폰 번호 입력",
-            suffixIcon: ElevatedButton(onPressed: () {
-              setModal(() => isSent = true);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('실제 인증번호 [3388]이 발송되었습니다.')));
-            }, child: const Text('발송'))
-          )),
-          if (isSent) ...[
+  Widget _buildMenuCard(String title, IconData icon, Color color) {
+    return Card(
+      child: InkWell(
+        onTap: () {},
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: color),
             const SizedBox(height: 10),
-            const TextField(decoration: InputDecoration(labelText: "인증번호 입력")),
-            const SizedBox(height: 30),
-            SizedBox(width: double.infinity, height: 60, child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-              onPressed: () {
-                setState(() => AppSession.isSmsOk = true);
-                Navigator.pop(ctx);
-              },
-              child: const Text('실제 번호 대조 및 인증 승인')
-            )),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           ],
-          const SizedBox(height: 30),
-        ]),
-      )),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('당장 - 실제 구동 엔진')),
-      body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Text('로그인 이메일: ${AppSession.email}'),
-        Text('사용자 이름: ${AppSession.name}'),
-        const SizedBox(height: 20),
-        const Text('예치금: 50,000원', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange)),
-      ])),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _idx,
-        onTap: (i) => i != 0 && !AppSession.isSmsOk ? _runSmsVerification() : setState(() => _idx = i),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.gps_fixed), label: '실시간지도'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '프로필'),
-        ],
+        ),
       ),
     );
   }
