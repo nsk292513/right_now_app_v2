@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.nsk292513.right_now_app_v2"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 34
         versionCode 1
         versionName "1.0.0"
