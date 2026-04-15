@@ -1,72 +1,91 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const DangJangApp());
+void main() {
+  runApp(const RightNowApp());
+}
 
-class DangJangApp extends StatelessWidget {
-  const DangJangApp({super.key});
+class RightNowApp extends StatelessWidget {
+  const RightNowApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange),
-      home: const AuthBridge(),
+      title: 'RightNow',
+      theme: ThemeData(
+        primarySwatch: Colors.orange,
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+      ),
+      home: const AuthNavigationWrapper(),
     );
   }
 }
 
-class AuthBridge extends StatefulWidget {
-  const AuthBridge({super.key});
+class AuthNavigationWrapper extends StatefulWidget {
+  const AuthNavigationWrapper({super.key});
+
   @override
-  State<AuthBridge> createState() => _AuthBridgeState();
+  State<AuthNavigationWrapper> createState() => _AuthNavigationWrapperState();
 }
 
-class _AuthBridgeState extends State<AuthBridge> {
-  bool _isLogged = false;
-  void _login() => setState(() => _isLogged = true);
-  void _logout() => setState(() => _isLogged = false);
+class _AuthNavigationWrapperState extends State<AuthNavigationWrapper> {
+  bool _isLoggedIn = false;
+
+  void _handleLogin() => setState(() => _isLoggedIn = true);
+  void _handleLogout() => setState(() => _isLoggedIn = false);
 
   @override
   Widget build(BuildContext context) {
-    return _isLogged 
-        ? MainPlatform(onLogout: _logout) 
-        : LoginScreen(onSuccess: _login);
+    return _isLoggedIn 
+        ? MainTabController(onLogout: _handleLogout) 
+        : LoginView(onLoginSuccess: _handleLogin);
   }
 }
 
-class LoginScreen extends StatelessWidget {
-  final VoidCallback onSuccess;
-  const LoginScreen({super.key, required this.onSuccess});
+class LoginView extends StatelessWidget {
+  final VoidCallback onLoginSuccess;
+  const LoginView({super.key, required this.onLoginSuccess});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.all(30),
         width: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [Colors.orange, Colors.deepOrange])
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.orange, Colors.deepOrange],
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.bolt, size: 90, color: Colors.white),
-            const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.bold)),
+            const Icon(Icons.bolt, size: 80, color: Colors.white),
+            const Text('당장', style: TextStyle(color: Colors.white, fontSize: 45, fontWeight: FontWeight.bold)),
             const SizedBox(height: 50),
-            _field("ID"),
+            _buildLoginInput("아이디(ID)"),
             const SizedBox(height: 10),
-            _field("Password", obs: true),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity, height: 60,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, shape: BorderRadius.circular(15)),
-                onPressed: onSuccess,
-                child: const Text('\ub85c\uadf8\uc778', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            _buildLoginInput("비밀번호(PW)", isObscure: true),
+            const SizedBox(height: 25),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: BorderRadius.circular(15),
+                  ),
+                  onPressed: onLoginSuccess,
+                  child: const Text('로그인', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
               ),
             ),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const JoinScreen())),
-              child: const Text('\ud68c\uc6d0\uac00\uc785 \ubc0f \ubcf8\uc778\uc778\uc99d', style: TextStyle(color: Colors.white70)),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const SignUpView())),
+              child: const Text('회원가입 및 본인인증(신분증)', style: TextStyle(color: Colors.white70)),
             ),
           ],
         ),
@@ -74,46 +93,59 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _field(String h, {bool obs = false}) {
-    return TextField(
-      obscureText: obs,
-      decoration: InputDecoration(filled: true, fillColor: Colors.white, hintText: h, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+  Widget _buildLoginInput(String hint, {bool isObscure = false}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: TextField(
+        obscureText: isObscure,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          hintText: hint,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+        ),
+      ),
     );
   }
 }
 
-class JoinScreen extends StatefulWidget {
-  const JoinScreen({super.key});
+class SignUpView extends StatefulWidget {
+  const SignUpView({super.key});
+
   @override
-  State<JoinScreen> createState() => _JoinScreenState();
+  State<SignUpView> createState() => _SignUpViewState();
 }
 
-class _JoinScreenState extends State<JoinScreen> {
-  bool v1 = false;
-  bool v2 = false;
+class _SignUpViewState extends State<SignUpView> {
+  bool _idCheck = false;
+  bool _phoneCheck = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('\ud1b5\ud569 \ubcf8\uc778 \uc778\uc99d')),
+      appBar: AppBar(title: const Text('회원가입 및 통합인증'), backgroundColor: Colors.white, foregroundColor: Colors.black, elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('\uc2e0\ub8b0 \uc778\uc99d \uc2dc\uc2a4\ud15c', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text('신뢰할 수 있는\n커뮤니티를 위해 인증해주세요.', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 30),
-            const TextField(decoration: InputDecoration(labelText: '\ub2nick\ub124\uc784 \uc124\uc815', border: OutlineInputBorder())),
+            const TextField(decoration: InputDecoration(labelText: '활동할 닉네임', border: OutlineInputBorder())),
             const SizedBox(height: 20),
-            _authRow("\uc2e0\ubd84\uc99d \uc778\uc99d", v1, () => setState(() => v1 = true)),
-            _authRow("\ud734\ub300\ud3ec \ubcf8\uc778 \uc778\uc99d", v2, () => setState(() => v2 = true)),
+            _authOption("신분증 확인 인증", _idCheck, () => setState(() => _idCheck = true)),
+            _authOption("본인 명의 휴대폰 인증", _phoneCheck, () => setState(() => _phoneCheck = true)),
             const Spacer(),
             SizedBox(
-              width: double.infinity, height: 60,
+              width: double.infinity,
+              height: 55,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: (v1 && v2) ? Colors.orange : Colors.grey),
-                onPressed: (v1 && v2) ? () => Navigator.pop(context) : null,
-                child: const Text('\uc778\uc99d \ubc0f \uac00\uc785 \uc644\ub8cc', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: (_idCheck && _phoneCheck) ? Colors.orange : Colors.grey,
+                  shape: BorderRadius.circular(15),
+                ),
+                onPressed: (_idCheck && _phoneCheck) ? () => Navigator.pop(context) : null,
+                child: const Text('가입 완료', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -122,25 +154,26 @@ class _JoinScreenState extends State<JoinScreen> {
     );
   }
 
-  Widget _authRow(String t, bool d, VoidCallback f) {
+  Widget _authOption(String title, bool isDone, VoidCallback onTab) {
     return ListTile(
-      leading: Icon(d ? Icons.check_circle : Icons.circle_outlined, color: d ? Colors.blue : Colors.grey),
-      title: Text(t),
-      trailing: ElevatedButton(onPressed: f, child: Text(d ? "\uc644\ub8cc" : "\uc778\uc99d")),
+      leading: Icon(isDone ? Icons.check_circle : Icons.circle_outlined, color: isDone ? Colors.blue : Colors.grey),
+      title: Text(title),
+      trailing: OutlinedButton(onPressed: onTab, child: Text(isDone ? "완료" : "인증하기")),
     );
   }
 }
 
-class MainPlatform extends StatefulWidget {
+class MainTabController extends StatefulWidget {
   final VoidCallback onLogout;
-  const MainPlatform({super.key, required this.onLogout});
+  const MainTabController({super.key, required this.onLogout});
+
   @override
-  State<MainPlatform> createState() => _MainPlatformState();
+  State<MainTabController> createState() => _MainTabControllerState();
 }
 
-class _MainPlatformState extends State<MainPlatform> {
-  int _tab = 0;
-  bool _mode = true; 
+class _MainTabControllerState extends State<MainTabController> {
+  int _tabIndex = 0;
+  bool _isOrderMode = true;
 
   @override
   Widget build(BuildContext context) {
@@ -148,80 +181,204 @@ class _MainPlatformState extends State<MainPlatform> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
-        title: Row(children: [
-          const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 26)),
-          const SizedBox(width: 8),
-          _verifiedBadge(),
-        ]),
+        title: Row(
+          children: [
+            const Text('당장', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 24)),
+            const SizedBox(width: 8),
+            _verifiedBadge(),
+          ],
+        ),
         actions: [
-          Switch(value: _mode, onChanged: (v) => setState(() => _mode = v), activeColor: Colors.orange),
-          IconButton(icon: const Icon(Icons.exit_to_app, color: Colors.grey), onPressed: widget.onLogout),
+          Switch(
+            value: _isOrderMode,
+            onChanged: (v) => setState(() => _isOrderMode = v),
+            activeColor: Colors.orange,
+          ),
+          IconButton(icon: const Icon(Icons.logout, color: Colors.grey), onPressed: widget.onLogout),
         ],
       ),
-      body: _buildPage(),
+      body: _buildCurrentTab(),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _tab,
-        onTap: (i) => setState(() => _tab = i),
+        currentIndex: _tabIndex,
+        onTap: (i) => setState(() => _tabIndex = i),
         selectedItemColor: Colors.orange[900],
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '\ub2f9\uc7a5\uc2e0\uccad'),
-          BottomNavigationBarItem(icon: Icon(Icons.map_sharp), label: '\uc2e4\uc2dc\uac04\uc9c0\ub3c4'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble), label: '\ucc44\ud305'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '\ub0b4\uc815\ubcf4'),
+          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '당장신청'),
+          BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: '실시간지도'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '채팅'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
         ],
       ),
     );
   }
 
-  Widget _verifiedBadge() => Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Row(children: [Icon(Icons.verified, size: 12, color: Colors.blue), SizedBox(width: 4), Text('\uc778\uc99d\ud68c\uc6d0', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold))]));
-
-  Widget _buildPage() {
-    if (_tab == 1) return _map();
-    if (_tab == 2) return _chat();
-    if (_tab == 3) return _profile();
-    return _home();
+  Widget _verifiedBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)),
+      child: const Row(
+        children: [
+          Icon(Icons.verified, size: 12, color: Colors.blue),
+          SizedBox(width: 4),
+          Text('인증회원', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
   }
 
-  Widget _home() {
+  Widget _buildCurrentTab() {
+    switch (_tabIndex) {
+      case 1: return _mapView();
+      case 2: return _chatView();
+      case 3: return _profileView();
+      default: return _homeView();
+    }
+  }
+
+  Widget _homeView() {
     return SingleChildScrollView(
-      child: Column(children: [
-        _banner(),
-        _item(_mode ? "\uc74c\ub8cc\uc218 \uad6c\ub9e4 \ub300\ud589" : "\uc0dd\uc218 \ubc30\ub2ec", _mode ? "\uc608\uce58\uae08\uc561: 3,000\uc6d0" : "\uc218\uc775: 3,000\uc6d0", _mode ? "\ub9e4\ching \uc911" : "150m"),
-        _item(_mode ? "\ud0dd\ubc30 \ub300\ud589 \uc218\ub839" : "\uc74c\uc2dd \ubc30\ub2ec", _mode ? "\uc608\uce58\uae08\uc561: 5,000\uc6d0" : "\uc218\uc775: 6,000\uc6d0", _mode ? "\uc218\ud589 \uc911" : "300m"),
-      ]),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildBanner(),
+          const SizedBox(height: 20),
+          Text(_isOrderMode ? "나의 요청 관리" : "지금 수익 창출하기", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          _itemCard(_isOrderMode ? "음료수 2캔 구매" : "생수 묶음 배달", _isOrderMode ? "예치금: 3,000원" : "수익: 4,000원", "매칭 진행 중"),
+          _itemCard(_isOrderMode ? "우체국 택배 발송" : "음식 배달 대행", _isOrderMode ? "예치금: 5,000원" : "수익: 6,000원", "수행자 이동 중"),
+        ],
+      ),
     );
   }
 
-  Widget _banner() => Container(width: double.infinity, margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.orangeAccent]), borderRadius: BorderRadius.circular(15)), child: const Text('\uc5d0\uc2a4\ud06c\ub85c\uc6b0 \uc548\uc2ec \uacb0\uc81c \uc2dc\uc2a4\ud15c \uac00\ub3d9 \uc911', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)));
+  Widget _buildBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [Colors.orange, Colors.orangeAccent]),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('에스크로우 안심 결제 중', style: TextStyle(color: Colors.white70, fontSize: 12)),
+          SizedBox(height: 5),
+          Text('신분증 인증 완료된 이웃만\n서로 매칭되는 안전한 커뮤니티!', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
 
-  Widget _item(String t, String p, String s) => ListTile(title: Text(t), subtitle: Text(s), trailing: Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)));
+  Widget _itemCard(String title, String price, String status) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: ListTile(
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(status),
+        trailing: Text(price, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 16)),
+      ),
+    );
+  }
 
-  Widget _map() => Column(children: [
-    Container(height: 250, width: double.infinity, color: Colors.orange[50], child: const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.my_location, size: 50, color: Colors.orange), Text('\uc2e4\uc2dc\uac04 \uc704\uce58 \uae30\ubc18 \uc774\uc6c3 \ub9e4\uce6d \uc911...', style: TextStyle(color: Colors.grey, fontSize: 12))]))),
-    const ListTile(title: Text('\uc8fc\ubcc0 \uc548\uc2ec\ubc88\ud638 \ud1b5\ud654 \uac00\ub2a5 \uc774\uc6c3'), trailing: Icon(Icons.call, color: Colors.green)),
-  ]);
+  Widget _mapView() {
+    return Column(
+      children: [
+        Expanded(
+          flex: 2,
+          child: Container(
+            width: double.infinity,
+            color: Colors.orange[50],
+            child: const Center(child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.location_on, size: 50, color: Colors.orange),
+                Text('내 주변 실시간 위치 매칭 중...', style: TextStyle(color: Colors.grey)),
+              ],
+            )),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text('가까운 안심번호 통화 가능 이웃', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              _neighborRow('사용자A (인증수행자)', '150m'),
+              _neighborRow('사용자B (인증주문자)', '300m'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
-  Widget _chat() => Column(children: [
-    Container(padding: const EdgeInsets.all(10), color: Colors.blue[50], child: const Text('\uc608\uce58\uae08\uc774 \uc548\uc804\ud558\uac8c \ubcf4\ud638 \uc911\uc785\ub2c8\ub2e4.', style: TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold))),
-    const Expanded(child: Center(child: Text('\ucc44\ud305 \uc2dc\ubbac\ub808\uc774\uc158'))),
-    Container(padding: const EdgeInsets.all(15), color: Colors.white, child: const Row(children: [Icon(Icons.add), Expanded(child: TextField()), Icon(Icons.call, color: Colors.green)])),
-  ]);
+  Widget _neighborRow(String name, String dist) {
+    return ListTile(
+      leading: const CircleAvatar(backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white)),
+      title: Text(name),
+      subtitle: Text('거리: $dist'),
+      trailing: const Icon(Icons.call, color: Colors.green),
+    );
+  }
 
-  Widget _profile() {
-    return Padding(
+  Widget _chatView() {
+    return Column(
+      children: [
+        Container(width: double.infinity, padding: const EdgeInsets.all(10), color: Colors.blue[50], child: const Text('거래가 완료될 때까지 예치금이 안전하게 보관됩니다.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))),
+        const Expanded(child: Center(child: Text('채팅 시뮬레이션'))),
+        Container(
+          padding: const EdgeInsets.all(15),
+          color: Colors.white,
+          child: Row(
+            children: [
+              const Icon(Icons.add, color: Colors.grey),
+              const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: TextField(decoration: InputDecoration(hintText: '메시지를 입력하세요', border: InputBorder.none)))),
+              const Icon(Icons.call, color: Colors.green),
+              const SizedBox(width: 10),
+              const Icon(Icons.send, color: Colors.orange),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _profileView() {
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(25),
-      child: Column(children: [
-        const CircleAvatar(radius: 40, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 50)),
-        const SizedBox(height: 10),
-        const Text('\ub2d9\ub124\uc784: \ub2f9\uc7a5\ub9e4\ub2c8\uc544', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 25),
-        _money(_mode ? "\ub098\uc758 \uc608\uce58\uae08\uc561" : "\uc815\uc0b0 \uac00\ub2a5 \uc218\uc775", _mode ? "50,000\uc6d0" : "12,500\uc6d0"),
-        const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('\uc2e0\ubd84\uc99d \ubc0f \ubcf8\uc778\uc778\uc99d \uc644\ub8cc')),
-      ]),
+      child: Column(
+        children: [
+          const CircleAvatar(radius: 40, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 50)),
+          const SizedBox(height: 15),
+          const Text('닉네임: 당장매니아', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 25),
+          _moneyBox(_isOrderMode ? "나의 총 예치금액" : "나의 정산 가능 수익", _isOrderMode ? "50,000원" : "12,500원"),
+          const SizedBox(height: 30),
+          const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('신분증 인증 완료'), trailing: Icon(Icons.check_circle, color: Colors.blue)),
+          const ListTile(leading: Icon(Icons.phone_android, color: Colors.blue), title: Text('본인 휴대폰 인증 완료'), trailing: Icon(Icons.check_circle, color: Colors.blue)),
+        ],
+      ),
     );
   }
 
-  Widget _money(String t, String v) => Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t), Text(v, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.orange))]));
+  Widget _moneyBox(String label, String value) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)),
+      child: Column(
+        children: [
+          Text(label, style: const TextStyle(fontSize: 14)),
+          const SizedBox(height: 8),
+          Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange)),
+        ],
+      ),
+    );
+  }
 }
