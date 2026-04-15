@@ -1,121 +1,39 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const DangJangApp());
+void main() => runApp(const MyApp());
 
-class DangJangApp extends StatelessWidget {
-  const DangJangApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.orange),
-      home: const AuthWrapper(),
+      home: const LoginPage(),
     );
   }
 }
 
-class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({super.key});
-  @override
-  State<AuthWrapper> createState() => _AuthWrapperState();
-}
-
-class _AuthWrapperState extends State<AuthWrapper> {
-  bool _isLoggedIn = false;
-  void _login() => setState(() => _isLoggedIn = true);
-  void _logout() => setState(() => _isLoggedIn = false);
-
-  @override
-  Widget build(BuildContext context) {
-    return _isLoggedIn 
-      ? MainNav(onLogout: _logout) 
-      : LoginScr(onLogin: _login);
-  }
-}
-
-class LoginScr extends StatelessWidget {
-  final VoidCallback onLogin;
-  const LoginScr({super.key, required this.onLogin});
-
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.all(30),
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [Colors.orange, Colors.deepOrange])
-        ),
+        color: Colors.orange,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.bolt, size: 80, color: Colors.white),
-            const Text('RIGHT NOW', style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
-            _input("ID"),
-            const SizedBox(height: 10),
-            _input("Password", obscure: true),
-            const SizedBox(height: 20),
-            _btn("LOGIN", Colors.black, onLogin),
-            TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const JoinScr())),
-              child: const Text('New user? Sign Up', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _input(String h, {bool obscure = false}) {
-    return TextField(
-      obscureText: obscure,
-      decoration: InputDecoration(filled: true, fillColor: Colors.white, hintText: h, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-    );
-  }
-
-  Widget _btn(String t, Color c, VoidCallback f) {
-    return SizedBox(
-      width: double.infinity,
-      height: 55,
-      child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: c, shape: BorderRadius.circular(15)), onPressed: f, child: Text(t, style: const TextStyle(color: Colors.white, fontSize: 18))),
-    );
-  }
-}
-
-class JoinScr extends StatefulWidget {
-  const JoinScr({super.key});
-  @override
-  State<JoinScr> createState() => _JoinScrState();
-}
-
-class _JoinScrState extends State<JoinScr> {
-  bool _idV = false;
-  bool _phV = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Verification'), elevation: 0),
-      body: Padding(
-        padding: const EdgeInsets.all(25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Security Check', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 30),
-            const TextField(decoration: InputDecoration(labelText: 'Nickname', border: OutlineInputBorder())),
-            const SizedBox(height: 20),
-            _auth("ID Card Auth", _idV, () => setState(() => _idV = true)),
-            _auth("Phone Auth", _phV, () => setState(() => _phV = true)),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              height: 55,
+            const Icon(Icons.bolt, size: 100, color: Colors.white),
+            const Text('RIGHT NOW', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 50),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: (_idV && _phV) ? Colors.orange : Colors.grey),
-                onPressed: (_idV && _phV) ? () => Navigator.pop(context) : null,
-                child: const Text('SIGN UP COMPLETE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const MainPage())),
+                child: const Text('START APP', style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
@@ -123,87 +41,83 @@ class _JoinScrState extends State<JoinScr> {
       ),
     );
   }
-
-  Widget _auth(String t, bool d, VoidCallback f) {
-    return ListTile(
-      leading: Icon(d ? Icons.check_circle : Icons.circle_outlined, color: d ? Colors.blue : Colors.grey),
-      title: Text(t),
-      trailing: OutlinedButton(onPressed: f, child: Text(d ? "DONE" : "VERIFY")),
-    );
-  }
 }
 
-class MainNav extends StatefulWidget {
-  final VoidCallback onLogout;
-  const MainNav({super.key, required this.onLogout});
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
   @override
-  State<MainNav> createState() => _MainNavState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _MainNavState extends State<MainNav> {
+class _MainPageState extends State<MainPage> {
   int _idx = 0;
-  bool _isOrd = true;
+  bool _isOrder = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Row(children: [const Text('RIGHT NOW', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)), const SizedBox(width: 8), _badge()]),
+        title: Text(_isOrder ? 'Order Mode' : 'Worker Mode', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
         actions: [
-          Switch(value: _isOrd, onChanged: (v) => setState(() => _isOrd = v), activeColor: Colors.orange),
-          IconButton(icon: const Icon(Icons.logout, color: Colors.grey), onPressed: widget.onLogout),
+          Switch(value: _isOrder, onChanged: (v) => setState(() => _isOrder = v), activeColor: Colors.orange),
         ],
       ),
-      body: _idx == 3 ? _profile() : _dummyBody(),
+      body: _idx == 3 ? _profile() : _home(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _idx,
         onTap: (i) => setState(() => _idx = i),
-        selectedItemColor: Colors.orange[900],
+        selectedItemColor: Colors.orange,
+        unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Apply'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Page'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
 
-  Widget _badge() => Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Text('VERIFIED', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)));
-
-  Widget _dummyBody() {
-    return Center(child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.check_circle_outline, size: 100, color: Colors.orange[100]),
-        const SizedBox(height: 20),
-        Text(_isOrd ? "ORDER MODE ACTIVE" : "WORKER MODE ACTIVE", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
-        const SizedBox(height: 10),
-        const Text("System Protected by Escrow", style: TextStyle(color: Colors.blue)),
-      ],
-    ));
+  Widget _home() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.verified_user, size: 80, color: Colors.blue[200]),
+          const SizedBox(height: 10),
+          const Text('Verified User Only', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          Text(_isOrder ? 'Ready to Order' : 'Ready to Work', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          const Text('Escrow System Active', style: TextStyle(color: Colors.grey)),
+        ],
+      ),
+    );
   }
 
   Widget _profile() {
     return Padding(
-      padding: const EdgeInsets.all(25),
+      padding: const EdgeInsets.all(30),
       child: Column(
         children: [
-          const CircleAvatar(radius: 40, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 45)),
-          const SizedBox(height: 15),
-          const Text('User: DangJang_VIP', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 30),
-          _box(_isOrd ? "Deposit Amount" : "Settlement Amount", _isOrd ? "50,000 KRW" : "12,500 KRW"),
+          const CircleAvatar(radius: 50, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 60)),
           const SizedBox(height: 20),
-          const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('ID & Phone Verification Done')),
+          const Text('VIP Member', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Divider(height: 40),
+          _box(_isOrder ? 'Deposit' : 'Settlement', _isOrder ? '50,000 KRW' : '12,500 KRW'),
         ],
       ),
     );
   }
 
   Widget _box(String t, String v) {
-    return Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t), const SizedBox(height: 10), Text(v, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.orange))]));
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)),
+      child: Column(children: [Text(t), const SizedBox(height: 10), Text(v, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange))]),
+    );
   }
 }
