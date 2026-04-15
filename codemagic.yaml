@@ -7,7 +7,8 @@ workflows:
       - name: Get Flutter packages
         script: flutter pub get
       - name: Build Android APK
-        script: flutter build apk --release --no-tree-shake-icons
+        script: |
+          flutter build apk --release --no-tree-shake-icons --build-number=79
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
