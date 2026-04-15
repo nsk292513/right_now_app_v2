@@ -1,45 +1,45 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const DangJangApp());
+void main() => runApp(const RightNowApp());
 
-class DangJangApp extends StatelessWidget {
-  const DangJangApp({super.key});
+class RightNowApp extends StatelessWidget {
+  const RightNowApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'DangJang',
       theme: ThemeData(
         primarySwatch: Colors.orange,
+        fontFamily: 'Pretendard',
         scaffoldBackgroundColor: const Color(0xFFF8F9FA),
       ),
-      home: const AuthWrapper(),
+      home: const AuthGateController(),
     );
   }
 }
 
-class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({super.key});
+class AuthGateController extends StatefulWidget {
+  const AuthGateController({super.key});
   @override
-  State<AuthWrapper> createState() => _AuthWrapperState();
+  State<AuthGateController> createState() => _AuthGateControllerState();
 }
 
-class _AuthWrapperState extends State<AuthWrapper> {
+class _AuthGateControllerState extends State<AuthGateController> {
   bool _isLoggedIn = false;
-  void _login() => setState(() => _isLoggedIn = true);
-  void _logout() => setState(() => _isLoggedIn = false);
+  void _doLogin() => setState(() => _isLoggedIn = true);
+  void _doLogout() => setState(() => _isLoggedIn = false);
 
   @override
   Widget build(BuildContext context) {
     return _isLoggedIn 
-        ? MainNavigationFrame(onLogout: _logout) 
-        : LoginView(onSuccess: _login);
+        ? MainAppNavigation(onLogout: _doLogout) 
+        : WelcomeLoginScreen(onSuccess: _doLogin);
   }
 }
 
-class LoginView extends StatelessWidget {
+class WelcomeLoginScreen extends StatelessWidget {
   final VoidCallback onSuccess;
-  const LoginView({super.key, required this.onSuccess});
+  const WelcomeLoginScreen({super.key, required this.onSuccess});
 
   @override
   Widget build(BuildContext context) {
@@ -56,28 +56,19 @@ class LoginView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.bolt, size: 80, color: Colors.white),
-            const Text('당장', style: TextStyle(color: Colors.white, fontSize: 45, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 50),
-            _buildInputField("아이디(ID)"),
-            const SizedBox(height: 10),
-            _buildInputField("비밀번호(Password)", obscure: true),
-            const SizedBox(height: 25),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 55),
-                  shape: BorderRadius.circular(15),
-                ),
-                onPressed: onSuccess,
-                child: const Text('로그인', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              ),
-            ),
+            const Icon(Icons.bolt, size: 90, color: Colors.white),
+            const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: 2)),
+            const Text('RIGHT NOW', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 60),
+            _buildInput("ID / Email"),
+            const SizedBox(height: 12),
+            _buildInput("Password", isObscure: true),
+            const SizedBox(height: 30),
+            _buildActionBtn("\ub85c\uadf8\uc778", Colors.black, onSuccess),
+            const SizedBox(height: 15),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const RegisterView())),
-              child: const Text('회원가입 및 신분증/휴대폰 본인인증', style: TextStyle(color: Colors.white70)),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const IdentityAuthScreen())),
+              child: const Text('\ud68c\uc6d0\uac00\uc785 \ubc0f \ubcf8\uc778\uc778\uc99d', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -85,57 +76,66 @@ class LoginView extends StatelessWidget {
     );
   }
 
-  Widget _buildInputField(String hint, {bool obscure = false}) {
+  Widget _buildInput(String hint, {bool isObscure = false}) {
     return Container(
-      width: 300,
+      width: 320,
+      decoration: BoxDecoration(boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 5))]),
       child: TextField(
-        obscureText: obscure,
+        obscureText: isObscure,
         decoration: InputDecoration(
           filled: true, fillColor: Colors.white, hintText: hint,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionBtn(String text, Color color, VoidCallback f) {
+    return SizedBox(
+      width: 320, height: 60,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(backgroundColor: color, shape: BorderRadius.circular(15), elevation: 5),
+        onPressed: f,
+        child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
       ),
     );
   }
 }
 
-class RegisterView extends StatefulWidget {
-  const RegisterView({super.key});
+class IdentityAuthScreen extends StatefulWidget {
+  const IdentityAuthScreen({super.key});
   @override
-  State<RegisterView> createState() => _RegisterViewState();
+  State<IdentityAuthScreen> createState() => _IdentityAuthScreenState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
-  bool _idAuth = false;
-  bool _phoneAuth = false;
+class _IdentityAuthScreenState extends State<IdentityAuthScreen> {
+  bool _idDone = false;
+  bool _phoneDone = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('회원가입 및 통합인증'), elevation: 0),
+      appBar: AppBar(title: const Text('\ud1b5\ud569 \ubcf8\uc778 \uc778\uc99d'), centerTitle: true, elevation: 0, backgroundColor: Colors.white, foregroundColor: Colors.black),
       body: Padding(
-        padding: const EdgeInsets.all(25),
+        padding: const EdgeInsets.all(30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('보안 및 신뢰 인증', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            const Text('출시를 위해 신분증 및 본인 휴대폰 인증이 필수입니다.'),
+            const Text('\uc2e0\ub8b0\ud560 \uc218 \uc788\ub294 \uac70\ub798\ub9bc \uc704\ud574\n\uc778\uc99d\uc744 \uc644\ub8cc\ud574\uc9c0\uc138\uc694.', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, height: 1.4)),
+            const SizedBox(height: 40),
+            const TextField(decoration: InputDecoration(labelText: '\ud65c\ub3d9 \ub2nick\ub124\uc784 \uc124\uc815', border: OutlineInputBorder(), hintText: '\uc2e4\uba85 \ub300\uc2e0 \ub178\ucd9c\ub420 \uc774\ub984\uc785\ub2c8\ub2e4.')),
             const SizedBox(height: 30),
-            const TextField(decoration: InputDecoration(labelText: '활동 닉네임 설정', border: OutlineInputBorder())),
-            const SizedBox(height: 20),
-            _buildAuthRow("신분증 확인 인증", _idAuth, () => setState(() => _idAuth = true)),
-            _buildAuthRow("본인 명의 휴대폰 인증", _phoneAuth, () => setState(() => _phoneAuth = true)),
+            _buildAuthRow("\uc2e0\ubd84\uc99d \uc9c4\uc704 \ud655\uc778 \uc778\uc99d", _idDone, () => setState(() => _idDone = true)),
+            const Divider(),
+            _buildAuthRow("\ubcf8\uc778 \uba85\uc758 \ud734\ub300\ud3ec \uc778\uc99d", _phoneDone, () => setState(() => _phoneDone = true)),
             const Spacer(),
             SizedBox(
-              width: double.infinity, height: 60,
+              width: double.infinity, height: 65,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: (_idAuth && _phoneAuth) ? Colors.orange : Colors.grey,
-                  shape: BorderRadius.circular(15),
-                ),
-                onPressed: (_idAuth && _phoneAuth) ? () => Navigator.pop(context) : null,
-                child: const Text('인증 및 가입 완료', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(backgroundColor: (_idDone && _phoneDone) ? Colors.orange : Colors.grey, shape: BorderRadius.circular(20)),
+                onPressed: (_idDone && _phoneDone) ? () => Navigator.pop(context) : null,
+                child: const Text('\uc778\uc99d \ubc0f \uac00\uc785 \uc644\ub8cc', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -146,235 +146,170 @@ class _RegisterViewState extends State<RegisterView> {
 
   Widget _buildAuthRow(String title, bool isDone, VoidCallback onTab) {
     return ListTile(
-      leading: Icon(isDone ? Icons.check_circle : Icons.circle_outlined, color: isDone ? Colors.blue : Colors.grey),
-      title: Text(title),
-      trailing: OutlinedButton(onPressed: onTab, child: Text(isDone ? "완료" : "인증하기")),
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(isDone ? Icons.verified : Icons.circle_outlined, color: isDone ? Colors.blue : Colors.grey, size: 30),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      trailing: OutlinedButton(onPressed: onTab, child: Text(isDone ? "\uc644\ub8cc" : "\uc778\uc99d\ud558\uae30")),
     );
   }
 }
 
-class MainNavigationFrame extends StatefulWidget {
+class MainAppNavigation extends StatefulWidget {
   final VoidCallback onLogout;
-  const MainNavigationFrame({super.key, required this.onLogout});
+  const MainAppNavigation({super.key, required this.onLogout});
   @override
-  State<MainNavigationFrame> createState() => _MainNavigationFrameState();
+  State<MainAppNavigation> createState() => _MainAppNavigationState();
 }
 
-class _MainNavigationFrameState extends State<MainNavigationFrame> {
-  int _currentIndex = 0;
+class _MainAppNavigationState extends State<MainAppNavigation> {
+  int _tabIndex = 0;
   bool _isOrderMode = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: Row(
-          children: [
-            const Text('당장', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 24)),
-            const SizedBox(width: 8),
-            _buildVerifiedBadge(),
-          ],
-        ),
+        backgroundColor: Colors.white, elevation: 1,
+        title: Row(children: [
+          const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900, fontSize: 26)),
+          const SizedBox(width: 10),
+          _buildBadge(),
+        ]),
         actions: [
-          const Center(child: Text('모드전환', style: TextStyle(color: Colors.grey, fontSize: 11))),
+          const Center(child: Text('\ubaa8\ub4dc\uc804\ud658', style: TextStyle(color: Colors.grey, fontSize: 11))),
           Switch(value: _isOrderMode, onChanged: (v) => setState(() => _isOrderMode = v), activeColor: Colors.orange),
           IconButton(icon: const Icon(Icons.logout, color: Colors.grey), onPressed: widget.onLogout),
         ],
       ),
-      body: _buildCurrentPage(),
+      body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: Colors.orange[900],
-        unselectedItemColor: Colors.grey,
+        currentIndex: _tabIndex,
+        onTap: (i) => setState(() => _tabIndex = i),
+        selectedItemColor: Colors.orange[900], unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '당장신청'),
-          BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: '실시간지도'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '채팅'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
+          BottomNavigationBarItem(icon: Icon(Icons.bolt_rounded), label: '\ub2f9\uc7a5\uc2e0\uccad'),
+          BottomNavigationBarItem(icon: Icon(Icons.location_on_outlined), label: '\uc2e4\uc2dc\uac04\uc9c0\ub3c4'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '\ucc44\ud305'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '\ub0b4\uc815\ubcf4'),
         ],
       ),
+      floatingActionButton: _isOrderMode ? FloatingActionButton.extended(
+        onPressed: () {}, backgroundColor: Colors.orange,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('\uc2ec\ubd84\ub984 \uc694\uccad', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ) : null,
     );
   }
 
-  Widget _buildVerifiedBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)),
-      child: const Row(
-        children: [
-          Icon(Icons.verified, size: 12, color: Colors.blue),
-          SizedBox(width: 4),
-          Text('인증회원', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
+  Widget _buildBadge() => Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Row(children: [Icon(Icons.verified, size: 12, color: Colors.blue), SizedBox(width: 4), Text('\uc778\uc99d\ud68c\uc6d0', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold))]));
 
-  Widget _buildCurrentPage() {
-    switch (_currentIndex) {
-      case 1: return _buildMapView();
-      case 2: return _buildChatView();
-      case 3: return _buildProfileView();
-      default: return _buildHomeView();
+  Widget _buildBody() {
+    switch (_tabIndex) {
+      case 1: return _mapView();
+      case 2: return _chatView();
+      case 3: return _profileView();
+      default: return _homeView();
     }
   }
 
-  Widget _buildHomeView() {
+  Widget _homeView() {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildEscrowBanner(),
-          _buildSectionTitle(_isOrderMode ? "나의 실시간 요청" : "수행 가능한 심부름"),
-          _buildListCard(_isOrderMode ? "편의점 구매 대행" : "생수 배달 대행", _isOrderMode ? "예치금액: 3,000원" : "수익: 4,000원", _isOrderMode ? "매칭 중" : "거리 150m"),
-          _buildListCard(_isOrderMode ? "택배 대금 선결제 대행" : "음식 배달 대행", _isOrderMode ? "예치금액: 15,000원" : "수익: 7,000원", _isOrderMode ? "수행자 이동 중" : "거리 300m"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEscrowBanner() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(15),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.orange, Colors.orangeAccent]),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('에스크로우 안심 결제 보호 중', style: TextStyle(color: Colors.white70, fontSize: 12)),
-          SizedBox(height: 5),
-          Text('신분증 인증 완료된 이웃만 매칭되는\n안전한 실시간 대행 서비스 "당장"', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        ],
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _buildBanner(),
+        const SizedBox(height: 25),
+        Text(_isOrderMode ? "\ub098\uc758 \uc2e4\uc2dc\uac04 \uc694\uccad \ud604\ud669" : "\uc218\ud589 \uac00\ub2a5\ud55c \uc8fc\ubcc0 \uc2ec\ubd84\ub984", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 15),
+        _buildErrandCard(_isOrderMode ? "\ud3b8\uc758\uc810 \uc140\ub809\ud2b8 \uc74c\ub8cc 2\uce90" : "\uc0dd\uc218 \ubc30\ub2ec \ub300\ud589", _isOrderMode ? "\uc608\uce58\uae08\uc561: 3,500\uc6d0" : "\uc218\uc775: 4,000\uc6d0", _isOrderMode ? "\ub9e4\ucching \uc91d" : "250m \uac70\ub9ac"),
+        _buildErrandCard(_isOrderMode ? "\uc6b0\uccb4\uad6d \ud0dd\ubc30 \ub300\uae08 \uc120\uacb0\uc81c" : "\uc4f0\ub808\uae30 \ubd84\ub9ac\uc218\uac70 \ub300\ud589", _isOrderMode ? "\uc608\uce58\uae08\uc561: 15,000\uc6d0" : "\uc218\uc775: 3,000\uc6d0", _isOrderMode ? "\uc218\ud589\uc790 \uc774\ub3d9 \uc91d" : "400m \uac70\ub9ac"),
+      ]),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(padding: const EdgeInsets.all(15), child: Row(children: [Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))]));
-  }
-
-  Widget _buildListCard(String title, String price, String status) {
+  Widget _buildBanner() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.grey[200]!)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text(status, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-          ]),
-          Text(price, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-        ],
-      ),
+      width: double.infinity, padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.orangeAccent]), borderRadius: BorderRadius.circular(25), boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))]),
+      child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('\uc5d0\uc2a4\ud06c\ub85c\uc6b0 \uc548\uc2ec \uacb0\uc81c \uc2dc\uc2a4\ud15c \uc801\uc6a9', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
+        SizedBox(height: 10),
+        Text('\uc2e0\ubd84\uc99d \uc778\uc99d \uc644\ub8cc\ub41c \uc774\uc6c3\uacfc\ub9cc\n\uc548\uc804\ud558\uac8c \uac70\ub798\ud558\uc138\uc694!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+      ]),
     );
   }
 
-  Widget _buildMapView() {
-    return Column(
-      children: [
-        Container(
-          height: 250,
-          width: double.infinity,
-          color: Colors.orange[50],
-          child: const Center(child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.my_location, size: 50, color: Colors.orange),
-              SizedBox(height: 10),
-              Text('실시간 내 주변 이웃 매칭 중 (강남구 역삼동)', style: TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
-          )),
-        ),
-        const Padding(padding: EdgeInsets.all(15), child: Row(children: [Text('주변 안심번호 통화 가능 이웃', style: TextStyle(fontWeight: FontWeight.bold))])),
-        Expanded(child: ListView(
-          children: [
-            _buildNeighborRow('홍길동 (인증수행자)', '120m'),
-            _buildNeighborRow('이이웃 (인증주문자)', '250m'),
-          ],
-        )),
-      ],
+  Widget _buildErrandCard(String t, String p, String s) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15), padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)]),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+          const SizedBox(height: 5),
+          Text(s, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+        ]),
+        Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.w900, fontSize: 17)),
+      ]),
     );
   }
 
-  Widget _buildNeighborRow(String name, String dist) {
+  Widget _mapView() {
+    return Column(children: [
+      Expanded(flex: 3, child: Container(width: double.infinity, color: Colors.orange[50], child: const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.my_location, size: 50, color: Colors.orange), SizedBox(height: 10), Text('\uc2e4\uc2dc\uac04 \uc704\uce58 \uae30\ubc18 \uc774\uc6c3 \ub9e4\ucching \uc91d...', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold))])))),
+      Expanded(flex: 4, child: ListView(padding: const EdgeInsets.all(20), children: [
+        const Text('\uc8fc\ubcc0 \uc548\uc2ec\ubc88\ud638 \ud1b5\ud654 \uac00\ub2a5 \uc774\uc6c3', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        const SizedBox(height: 15),
+        _neighborRow('\ud64d\uae38\ub3d9 (\uc778\uc99d\uc218\ud589\uc790)', '150m', '5.0'),
+        _neighborRow('\uc774\uc774\uc6c3 (\uc778\uc99d\uc8fc\ubb38\uc790)', '320m', '4.9'),
+      ])),
+    ]);
+  }
+
+  Widget _neighborRow(String n, String d, String r) {
     return ListTile(
-      leading: const CircleAvatar(backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white)),
-      title: Text(name),
-      subtitle: Text('거리: $dist'),
-      trailing: const Icon(Icons.call, color: Colors.green),
+      contentPadding: EdgeInsets.zero,
+      leading: const CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.person, color: Colors.white)),
+      title: Text(n, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text('\uac70\ub9ac: $d | \ubcc4\uc810: $r'),
+      trailing: const Icon(Icons.call, color: Colors.green, size: 30),
     );
   }
 
-  Widget _buildChatView() {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(10),
-          color: Colors.blue[50],
-          child: const Text('거래 수락 시 예치금이 자동으로 지급됩니다.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold)),
-        ),
-        const Expanded(child: Center(child: Text('채팅 시뮬레이션'))),
-        Container(
-          padding: const EdgeInsets.all(15),
-          color: Colors.white,
-          child: Row(
-            children: [
-              const Icon(Icons.add, color: Colors.grey),
-              const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: TextField(decoration: InputDecoration(hintText: '메시지를 입력하세요')))),
-              const Icon(Icons.call, color: Colors.green),
-              const SizedBox(width: 8),
-              const Icon(Icons.send, color: Colors.orange),
-            ],
-          ),
-        ),
-      ],
-    );
+  Widget _chatView() {
+    return Column(children: [
+      Container(width: double.infinity, padding: const EdgeInsets.all(12), color: Colors.blue[50], child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.lock, size: 14, color: Colors.blue), SizedBox(width: 8), Text('\uc5d0\uc2a4\ud06c\ub85c\uc6b0 \ubcf4\ud638: \uac70\ub798 \uc644\ub8cc \uc2dc\uc5d0\ub9cc \uc790\uae08\uc774 \uc9c0\uae08\ub429\ub2c8\ub2e4.', style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))])),
+      const Expanded(child: Center(child: Text('\ucc44\ud305 \uc2dc\ubbac\ub808\uc774\uc158 \ud654\uba74'))),
+      Container(padding: const EdgeInsets.all(15), decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFEEEEEE)))), child: Row(children: [const Icon(Icons.add_circle_outline, color: Colors.grey), const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: TextField(decoration: InputDecoration(hintText: '\uba54\uc2dc\uc9c0\ub9bc \uc785\ub825\ud558\uc138\uc694...', border: InputBorder.none)))), const Icon(Icons.call, color: Colors.green), const SizedBox(width: 15), const Icon(Icons.send, color: Colors.orange)]))
+    ]);
   }
 
-  Widget _buildProfileView() {
+  Widget _profileView() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(25),
-      child: Column(
-        children: [
-          const CircleAvatar(radius: 40, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 50)),
-          const SizedBox(height: 10),
-          const Text('닉네임: 당장매니아', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 25),
-          _buildMoneyBox(_isOrderMode ? "나의 총 예치금액" : "나의 정산 가능 수익", _isOrderMode ? "50,000원" : "12,500원"),
-          const SizedBox(height: 30),
-          _buildInfoRow(Icons.verified, "신분증 인증 완료"),
-          _buildInfoRow(Icons.phone_android, "본인 휴대폰 인증 완료"),
-        ],
-      ),
+      child: Column(children: [
+        const CircleAvatar(radius: 45, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 55)),
+        const SizedBox(height: 15),
+        const Text('\ub2d9\ub124\uc784: \ub2f9\uc7a5\ub9e4\ub2c8\uc544', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 30),
+        _moneyBox(_isOrderMode ? "\ub098\uc758 \ucd1d \uc608\uce58\uae08\uc561" : "\ub098\uc758 \uc815\uc0b0 \uac00\ub2a5 \uc218\uc775", _isOrderMode ? "50,000\uc6d0" : "12,500\uc6d0"),
+        const SizedBox(height: 30),
+        _profileInfoRow(Icons.verified, "\uc2e0\ubd84\uc99d \uc9c4\uc704 \ud655\uc778 \uc644\ub8cc"),
+        _profileInfoRow(Icons.phone_android, "\ubcf8\uc778 \uba85\uc758 \ud734\ub300\ud3ec \uc778\uc99d \uc644\ub8cc"),
+        _profileInfoRow(Icons.security, "\uac1c\uc778\uc815\ubcf4 \uc554\ud638\ud654 \ubcf4\ud638 \uc91d"),
+      ]),
     );
   }
 
-  Widget _buildMoneyBox(String label, String value) {
+  Widget _moneyBox(String t, String v) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)),
-      child: Column(
-        children: [
-          Text(label, style: const TextStyle(fontSize: 14)),
-          const SizedBox(height: 8),
-          Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange)),
-        ],
-      ),
+      width: double.infinity, padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.orange[100]!)),
+      child: Column(children: [Text(t, style: const TextStyle(fontSize: 14, color: Colors.orange)), const SizedBox(height: 10), Text(v, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.orange))]),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
-    return ListTile(leading: Icon(icon, color: Colors.blue), title: Text(text), trailing: const Icon(Icons.check_circle, color: Colors.blue));
+  Widget _profileInfoRow(IconData i, String t) {
+    return ListTile(contentPadding: EdgeInsets.zero, leading: Icon(i, color: Colors.blue), title: Text(t, style: const TextStyle(fontWeight: FontWeight.w500)), trailing: const Icon(Icons.check_circle, color: Colors.blue, size: 20));
   }
 }
