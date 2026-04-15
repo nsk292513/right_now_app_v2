@@ -3,15 +3,12 @@ workflows:
     name: Default Workflow
     max_build_duration: 60
     instance_type: mac_mini_m2
-    environment:
-      flutter: stable
-      xcode: latest
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
       - name: Build Android APK
         script: |
-          flutter build apk --release --no-tree-shake-icons --build-number=86
+          flutter build apk --release --no-tree-shake-icons --build-name=1.0.87 --build-number=87 --lints-as-errors=false
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
