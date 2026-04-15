@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const DangJangApp());
+void main() => runApp(const MyApp());
 
-class DangJangApp extends StatelessWidget {
-  const DangJangApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'DangJang',
-      theme: ThemeData(primarySwatch: Colors.orange, fontFamily: 'Pretendard'),
+      theme: ThemeData(primarySwatch: Colors.orange),
       home: const AuthWrapper(),
     );
   }
@@ -23,20 +22,20 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _isLoggedIn = false;
-  void _doLogin() => setState(() => _isLoggedIn = true);
-  void _doLogout() => setState(() => _isLoggedIn = false);
+  void _login() => setState(() => _isLoggedIn = true);
+  void _logout() => setState(() => _isLoggedIn = false);
 
   @override
   Widget build(BuildContext context) {
     return _isLoggedIn 
-        ? MainPlatform(onLogout: _doLogout) 
-        : LoginPage(onSuccess: _doLogin);
+        ? MainPlatform(onLogout: _logout) 
+        : LoginScreen(onSuccess: _login);
   }
 }
 
-class LoginPage extends StatelessWidget {
+class LoginScreen extends StatelessWidget {
   final VoidCallback onSuccess;
-  const LoginPage({super.key, required this.onSuccess});
+  const LoginScreen({super.key, required this.onSuccess});
 
   @override
   Widget build(BuildContext context) {
@@ -53,13 +52,12 @@ class LoginPage extends StatelessWidget {
             const Icon(Icons.bolt, size: 80, color: Colors.white),
             const Text('당장', style: TextStyle(color: Colors.white, fontSize: 45, fontWeight: FontWeight.bold)),
             const SizedBox(height: 50),
-            _field("아이디(ID)"),
+            _input("아이디"),
             const SizedBox(height: 10),
-            _field("비밀번호(Password)", obscure: true),
+            _input("비밀번호", obs: true),
             const SizedBox(height: 25),
             SizedBox(
-              width: double.infinity,
-              height: 55,
+              width: double.infinity, height: 55,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.black, shape: BorderRadius.circular(15)),
                 onPressed: onSuccess,
@@ -67,7 +65,7 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const JoinPage())),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const JoinScreen())),
               child: const Text('회원가입 및 본인인증(신분증/휴대폰)', style: TextStyle(color: Colors.white70)),
             ),
           ],
@@ -76,24 +74,24 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget _field(String hint, {bool obscure = false}) {
+  Widget _input(String h, {bool obs = false}) {
     return TextField(
-      obscureText: obscure,
+      obscureText: obs,
       decoration: InputDecoration(
-        filled: true, fillColor: Colors.white, hintText: hint,
+        filled: true, fillColor: Colors.white, hintText: h,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))
       ),
     );
   }
 }
 
-class JoinPage extends StatefulWidget {
-  const JoinPage({super.key});
+class JoinScreen extends StatefulWidget {
+  const JoinScreen({super.key});
   @override
-  State<JoinPage> createState() => _JoinPageState();
+  State<JoinScreen> createState() => _JoinScreenState();
 }
 
-class _JoinPageState extends State<JoinPage> {
+class _JoinScreenState extends State<JoinScreen> {
   bool v1 = false;
   bool v2 = false;
 
@@ -147,7 +145,7 @@ class MainPlatform extends StatefulWidget {
 
 class _MainPlatformState extends State<MainPlatform> {
   int _curr = 0;
-  bool _mode = true; // true: Order, false: Worker
+  bool _mode = true; 
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +163,7 @@ class _MainPlatformState extends State<MainPlatform> {
           IconButton(icon: const Icon(Icons.logout, color: Colors.grey), onPressed: widget.onLogout),
         ],
       ),
-      body: _buildView(),
+      body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _curr,
         onTap: (i) => setState(() => _curr = i),
@@ -174,9 +172,9 @@ class _MainPlatformState extends State<MainPlatform> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '당장신청'),
-          BottomNavigationBarItem(icon: Icon(Icons.map_sharp), label: '실시간지도'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '채팅'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: '실시간지도'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: '채팅'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: '내정보'),
         ],
       ),
     );
@@ -184,94 +182,51 @@ class _MainPlatformState extends State<MainPlatform> {
 
   Widget _badge() => Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Row(children: [Icon(Icons.verified, size: 12, color: Colors.blue), SizedBox(width: 4), Text('인증회원', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold))]));
 
-  Widget _buildView() {
-    if (_curr == 1) return _mapView();
-    if (_curr == 2) return _chatView();
-    if (_curr == 3) return _profileView();
-    return _homeView();
+  Widget _buildBody() {
+    if (_curr == 1) return _map();
+    if (_curr == 2) return _chat();
+    if (_curr == 3) return _profile();
+    return _home();
   }
 
-  Widget _homeView() {
+  Widget _home() {
     return SingleChildScrollView(
       child: Column(children: [
         _banner(),
-        _card(_mode ? "편의점 음료수 사다주기" : "배달 대행 알바", _mode ? "예치금액: 3,000원" : "수익: 4,000원", _mode ? "매칭 중" : "거리 200m"),
-        _card(_mode ? "택배 박스 대행 수령" : "분리수거 도우미", _mode ? "예치금액: 5,000원" : "수익: 3,000원", _mode ? "수행 중" : "거리 450m"),
+        _item(_mode ? "편의점 구매 대행" : "생수 배달", _mode ? "예치금: 3,000원" : "수익: 3,000원", _mode ? "매칭 중" : "150m"),
+        _item(_mode ? "택배 대행 수령" : "음식 배달", _mode ? "예치금: 5,000원" : "수익: 6,000원", _mode ? "진행 중" : "300m"),
       ]),
     );
   }
 
-  Widget _banner() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(15),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.orangeAccent]), borderRadius: BorderRadius.circular(15)),
-      child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('에스크로우 안심 결제 시스템 가동 중', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-        SizedBox(height: 5),
-        Text('신분증 인증 회원만 활동 가능한 고신뢰 플랫폼', style: TextStyle(color: Colors.white70, fontSize: 12)),
-      ]),
-    );
-  }
+  Widget _banner() => Container(width: double.infinity, margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(15)), child: const Text('에스크로우 안심 결제 시스템 가동 중', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)));
 
-  Widget _card(String t, String p, String s) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.grey[100]!)),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text(s, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        ]),
-        Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-      ]),
-    );
-  }
+  Widget _item(String t, String p, String s) => ListTile(title: Text(t), subtitle: Text(s), trailing: Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)));
 
-  Widget _mapView() {
-    return Column(children: [
-      Container(height: 250, width: double.infinity, color: Colors.orange[50], child: const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.my_location, size: 50, color: Colors.orange), Text('실시간 위치 기반 이웃 매칭 중...', style: TextStyle(color: Colors.grey, fontSize: 12))]))),
-      const Padding(padding: EdgeInsets.all(15), child: Text('내 주변 안심번호 통화 가능 이웃', style: TextStyle(fontWeight: FontWeight.bold))),
-      Expanded(child: ListView(children: [
-        _neighbor('김수행 (인증회원)', '150m'),
-        _neighbor('이주문 (인증회원)', '380m'),
-      ])),
-    ]);
-  }
+  Widget _map() => Column(children: [
+    Container(height: 250, width: double.infinity, color: Colors.orange[50], child: const Icon(Icons.my_location, size: 50, color: Colors.orange)),
+    const ListTile(title: Text('주변 안심번호 통화 가능 이웃'), trailing: Icon(Icons.call, color: Colors.green)),
+  ]);
 
-  Widget _neighbor(String n, String d) {
-    return ListTile(leading: const CircleAvatar(backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white)), title: Text(n), subtitle: Text('거리: $d'), trailing: const Icon(Icons.call, color: Colors.green));
-  }
+  Widget _chat() => Column(children: [
+    Container(padding: const EdgeInsets.all(10), color: Colors.blue[50], child: const Text('보증금이 안전하게 보호 중입니다.', style: TextStyle(color: Colors.blue, fontSize: 12))),
+    const Expanded(child: Center(child: Text('채팅 화면'))),
+    Container(padding: const EdgeInsets.all(15), color: Colors.white, child: const Row(children: [Icon(Icons.add), Expanded(child: TextField()), Icon(Icons.call, color: Colors.green)])),
+  ]);
 
-  Widget _chatView() {
-    return Column(children: [
-      Container(padding: const EdgeInsets.all(10), color: Colors.blue[50], child: const Text('거래 수락 시 예치금이 자동으로 지급됩니다.', style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))),
-      const Expanded(child: Center(child: Text('채팅 시뮬레이션'))),
-      Container(padding: const EdgeInsets.all(15), color: Colors.white, child: const Row(children: [Icon(Icons.add), Expanded(child: TextField(decoration: InputDecoration(hintText: '메시지 입력'))), Icon(Icons.call, color: Colors.green)])),
-    ]);
-  }
-
-  Widget _profileView() {
+  Widget _profile() {
     return Padding(
       padding: const EdgeInsets.all(25),
       child: Column(children: [
         const CircleAvatar(radius: 40, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 50)),
         const SizedBox(height: 10),
-        const Text('닉네임: 당장마스터', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text('닉네임: 당장매니아', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 25),
-        _moneyBox(_mode ? "나의 예치금액" : "정산 가능 수익", _mode ? "100,000원" : "25,000원"),
-        const SizedBox(height: 20),
-        _infoLine(Icons.verified, "신분증 인증 완료"),
-        _infoLine(Icons.phone_android, "본인 휴대폰 인증 완료"),
+        _money(_mode ? "나의 예치금액" : "정산 가능 수익", _mode ? "50,000원" : "12,500원"),
+        const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('본인인증 완료 회원')),
       ]),
     );
   }
 
-  Widget _moneyBox(String t, String v) {
-    return Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t, style: const TextStyle(fontSize: 14)), const SizedBox(height: 8), Text(v, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange))]));
-  }
-
-  Widget _infoLine(IconData i, String t) => ListTile(leading: Icon(i, color: Colors.blue), title: Text(t), trailing: const Icon(Icons.check_circle, color: Colors.blue));
+  Widget _money(String t, String v) => Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t), Text(v, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange))]));
 }
