@@ -9,18 +9,127 @@ class DangJangApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.orange, fontFamily: 'Pretendard'),
-      home: const IntegratedNavigation(),
+      home: const AuthWrapper(),
     );
   }
 }
 
-class IntegratedNavigation extends StatefulWidget {
-  const IntegratedNavigation({super.key});
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
   @override
-  State<IntegratedNavigation> createState() => _IntegratedNavigationState();
+  State<AuthWrapper> createState() => _AuthWrapperState();
 }
 
-class _IntegratedNavigationState extends State<IntegratedNavigation> {
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _isLoggedIn = false;
+  void _login() => setState(() => _isLoggedIn = true);
+
+  @override
+  Widget build(BuildContext context) {
+    return _isLoggedIn ? MainNavigation(onLogout: () => setState(() => _isLoggedIn = false)) : LoginScreen(onLoginSuccess: _login);
+  }
+}
+
+class LoginScreen extends StatelessWidget {
+  final VoidCallback onLoginSuccess;
+  const LoginScreen({super.key, required this.onLoginSuccess});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        padding: const EdgeInsets.all(30),
+        width: double.infinity,
+        decoration: const BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.deepOrange])),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.bolt, size: 80, color: Colors.white),
+            const Text('당장', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.black)),
+            const SizedBox(height: 50),
+            TextField(decoration: InputDecoration(filled: true, fillColor: Colors.white, hintText: '아이디', border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)))),
+            const SizedBox(height: 10),
+            TextField(obscureText: true, decoration: InputDecoration(filled: true, fillColor: Colors.white, hintText: '비밀번호', border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)))),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, shape: BorderRadius.circular(15)),
+                onPressed: onLoginSuccess,
+                child: const Text('로그인', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+              child: const Text('처음이신가요? 회원가입하기', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  bool _isIdVerified = false;
+  bool _isPhoneVerified = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('회원가입 및 인증'), elevation: 0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('안전한 거래를 위해\n본인 인증이 필요합니다.', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 30),
+            TextField(decoration: InputDecoration(labelText: '사용할 닉네임', hintText: '활동할 닉네임을 입력하세요', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)))),
+            const SizedBox(height: 20),
+            _authTile('신분증 인증', _isIdVerified, () => setState(() => _isIdVerified = true)),
+            _authTile('본인 명의 휴대폰 인증', _isPhoneVerified, () => setState(() => _isPhoneVerified = true)),
+            const SizedBox(height: 40),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: (_isIdVerified && _isPhoneVerified) ? Colors.orange : Colors.grey, shape: BorderRadius.circular(15)),
+                onPressed: (_isIdVerified && _isPhoneVerified) ? () => Navigator.pop(context) : null,
+                child: const Text('가입 완료', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _authTile(String t, bool isDone, VoidCallback onTap) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(isDone ? Icons.check_circle : Icons.circle_outlined, color: isDone ? Colors.blue : Colors.grey),
+      title: Text(t),
+      trailing: OutlinedButton(onPressed: onTap, child: Text(isDone ? '완료' : '인증하기')),
+    );
+  }
+}
+
+class MainNavigation extends StatefulWidget {
+  final VoidCallback onLogout;
+  const MainNavigation({super.key, required this.onLogout});
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
   int _idx = 0;
   bool _isOrderMode = true;
 
@@ -29,182 +138,49 @@ class _IntegratedNavigationState extends State<IntegratedNavigation> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 1,
-        title: Row(
-          children: [
-            const Text('당장', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 24)),
-            const SizedBox(width: 8),
-            _buildAuthBadge(),
-          ],
-        ),
+        title: Row(children: [const Text('당장', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)), const SizedBox(width: 8), _badge()]),
         actions: [
           Switch(value: _isOrderMode, onChanged: (v) => setState(() => _isOrderMode = v), activeColor: Colors.orange),
-          const SizedBox(width: 10),
+          IconButton(icon: const Icon(Icons.exit_to_app, color: Colors.grey), onPressed: widget.onLogout),
         ],
       ),
-      body: IndexedStack(
-        index: _idx,
-        children: [_home(), _map(), _chat(), _profile()],
-      ),
+      body: _body(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _idx,
         onTap: (i) => setState(() => _idx = i),
         selectedItemColor: Colors.orange[900],
-        unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '당장신청'),
-          BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: '주변지도'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '채팅'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: '주변지도'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: '채팅'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: '내정보'),
         ],
       ),
     );
   }
 
-  Widget _buildAuthBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.blue[200]!)),
-      child: const Row(
-        children: [
-          Icon(Icons.verified, size: 10, color: Colors.blue),
-          SizedBox(width: 2),
-          Text('인증회원', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
+  Widget _badge() => Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Text('인증회원', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)));
+
+  Widget _body() {
+    if (_idx == 3) return _profilePage();
+    return Center(child: Text(_isOrderMode ? '주문자 모드 활성화' : '수행자 모드 활성화'));
   }
 
-  Widget _home() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _banner(),
-          if (_isOrderMode) ...[
-            _itemCard("음료수 2캔 사다주기", "예치금액: 3,000원", "수행자 매칭 중", Colors.blue),
-            _itemCard("택배 보관함 대행", "예치금액: 5,000원", "배송 진행 중", Colors.green),
-          ] else ...[
-            _itemCard("편의점 구매 대행", "수익: 3,000원", "200m 이내", Colors.orange),
-            _itemCard("약국 타이레놀 배달", "수익: 4,500원", "450m 이내", Colors.red),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _banner() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.orangeAccent]), borderRadius: BorderRadius.circular(20)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('신분증/휴대폰 인증 완료 회원 전용', style: TextStyle(color: Colors.white70, fontSize: 12)),
-        const SizedBox(height: 8),
-        Text(_isOrderMode ? '안전하게 예치하고\n당장 도움을 받으세요!' : '지금 바로 주변에서\n당장 수익을 만드세요!', 
-          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-      ]),
-    );
-  }
-
-  Widget _itemCard(String t, String p, String s, Color c) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.grey[100]!)),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text(s, style: TextStyle(color: c, fontSize: 13, fontWeight: FontWeight.bold)),
-        ]),
-        Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 16)),
-      ]),
-    );
-  }
-
-  Widget _map() {
-    return Column(children: [
-      Container(height: 180, color: Colors.orange[50], child: const Center(child: Icon(Icons.location_on, size: 40, color: Colors.orange))),
-      const Padding(padding: EdgeInsets.all(15), child: Text('실시간 안심번호 통화 가능 이웃', style: TextStyle(fontWeight: FontWeight.bold))),
-      Expanded(child: ListView(children: [
-        _userRow('홍길동 (인증회원)', '150m'),
-        _userRow('이순신 (인증회원)', '320m'),
-      ])),
-    ]);
-  }
-
-  Widget _userRow(String n, String d) {
-    return ListTile(
-      leading: const Icon(Icons.account_circle, size: 40),
-      title: Text(n),
-      subtitle: Text('거리: $d'),
-      trailing: const Icon(Icons.call, color: Colors.green),
-    );
-  }
-
-  Widget _chat() {
-    return Column(children: [
-      Container(padding: const EdgeInsets.all(10), color: Colors.blue[50], child: const Text('수락 완료 시 예치금이 자동으로 지급됩니다.', style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))),
-      Expanded(child: ListView(padding: const EdgeInsets.all(20), children: [
-        _bubble('수행자', '물건 사고 출발합니다!', true),
-        _bubble('주문자', '네, 도착 후 수락 버튼 누를게요.', false),
-      ])),
-      Container(padding: const EdgeInsets.all(15), color: Colors.white, child: const Row(children: [Icon(Icons.add), Expanded(child: TextField()), Icon(Icons.send)])),
-    ]);
-  }
-
-  Widget _bubble(String s, String m, bool isMe) {
-    return Column(crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start, children: [
-      Text(s, style: const TextStyle(fontSize: 10)),
-      Container(margin: const EdgeInsets.symmetric(vertical: 4), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: isMe ? Colors.orange : Colors.grey[200], borderRadius: BorderRadius.circular(15)), child: Text(m)),
-    ]);
-  }
-
-  Widget _profile() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const CircleAvatar(radius: 30, backgroundColor: Colors.grey, child: Icon(Icons.person, color: Colors.white, size: 40)),
-          const SizedBox(width: 15),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Row(children: [Text('사용자님', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), SizedBox(width: 5), Icon(Icons.verified, size: 16, color: Colors.blue)]),
-            Text(_isOrderMode ? '주문자 회원' : '수행자 회원', style: const TextStyle(color: Colors.grey)),
-          ]),
-        ]),
-        const SizedBox(height: 30),
-        _infoBox(_isOrderMode ? "미리 예치한 금액" : "정산 가능한 금액", _isOrderMode ? "50,000원" : "12,500원"),
-        const SizedBox(height: 20),
-        const Text('개인정보 관리 (인증완료)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 10),
-        _inputField("이름", "홍길동"),
-        _inputField("전화번호", "010-1234-5678"),
-        const SizedBox(height: 20),
-        const Text('인증 시스템', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const ListTile(leading: Icon(Icons.credit_card, color: Colors.blue), title: Text('신분증 인증 완료'), trailing: Icon(Icons.check_circle, color: Colors.blue)),
-        const ListTile(leading: Icon(Icons.phone_android, color: Colors.blue), title: Text('휴대폰 본인 인증 완료'), trailing: Icon(Icons.check_circle, color: Colors.blue)),
-      ]),
-    );
-  }
-
-  Widget _infoBox(String t, String v) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)),
-      child: Column(children: [
-        Text(t, style: const TextStyle(fontSize: 14)),
-        const SizedBox(height: 5),
-        Text(v, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange)),
-      ]),
-    );
-  }
-
-  Widget _inputField(String label, String val) {
+  Widget _profilePage() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextField(decoration: InputDecoration(labelText: label, hintText: val, border: const OutlineInputBorder())),
+      padding: const EdgeInsets.all(20),
+      child: Column(children: [
+        const CircleAvatar(radius: 40, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 50)),
+        const SizedBox(height: 10),
+        const Text('닉네임: 당장매니아', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 20),
+        _moneyBox(_isOrderMode ? '예치금액' : '정산가능금액', _isOrderMode ? '50,000원' : '12,500원'),
+        const Divider(height: 40),
+        const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('신분증 및 본인인증 완료')),
+      ]),
     );
   }
+
+  Widget _moneyBox(String t, String v) => Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t), Text(v, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange))]));
 }
