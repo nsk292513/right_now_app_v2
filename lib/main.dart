@@ -67,7 +67,7 @@ class LoginScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const JoinScreen())),
-              child: const Text('처음이신가요? 회원가입 및 본인인증', style: TextStyle(color: Colors.white70)),
+              child: const Text('회원가입 및 본인인증하기', style: TextStyle(color: Colors.white70)),
             ),
           ],
         ),
@@ -99,15 +99,13 @@ class _JoinScreenState extends State<JoinScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('회원가입 및 본인인증'), elevation: 0),
+      appBar: AppBar(title: const Text('회원가입 및 인증'), elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('보안 인증 필수', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            const Text('신분증 및 본인 명의 휴대폰 인증이 필요합니다.'),
             const SizedBox(height: 30),
             const TextField(decoration: InputDecoration(labelText: '사용할 닉네임', border: OutlineInputBorder())),
             const SizedBox(height: 20),
@@ -119,7 +117,7 @@ class _JoinScreenState extends State<JoinScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: (v1 && v2) ? Colors.orange : Colors.grey),
                 onPressed: (v1 && v2) ? () => Navigator.pop(context) : null,
-                child: const Text('인증 및 가입완료', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: const Text('가입 완료', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -153,7 +151,6 @@ class _MainNavigationState extends State<MainNavigation> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 1,
         title: Row(children: [
           const Text('당장', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 24)),
           const SizedBox(width: 8),
@@ -194,8 +191,8 @@ class _MainNavigationState extends State<MainNavigation> {
     return SingleChildScrollView(
       child: Column(children: [
         _banner(),
-        _errandCard(_isOrder ? "편의점 음료수 2캔" : "생수 묶음 배달 대행", _isOrder ? "예치금액: 3,000원" : "수익: 4,000원", _isOrder ? "매칭 중" : "거리 250m"),
-        _errandCard(_isOrder ? "우체국 택배 대신 발송" : "쓰레기 분리수거 대행", _isOrder ? "예치금액: 5,000원" : "수익: 3,000원", _isOrder ? "진행 중" : "거리 150m"),
+        _errandCard(_isOrder ? "편의점 음료수 2캔" : "생수 배달 대행", _isOrder ? "예치금: 3,000원" : "수익: 4,000원", _isOrder ? "매칭 중" : "거리 250m"),
+        _errandCard(_isOrder ? "택배 대행" : "분리수거 대행", _isOrder ? "예치금: 5,000원" : "수익: 3,000원", _isOrder ? "진행 중" : "거리 150m"),
       ]),
     );
   }
@@ -206,11 +203,7 @@ class _MainNavigationState extends State<MainNavigation> {
       margin: const EdgeInsets.all(15),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.orangeAccent]), borderRadius: BorderRadius.circular(15)),
-      child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('에스크로우 안심 결제 적용 중', style: TextStyle(color: Colors.white70, fontSize: 12)),
-        SizedBox(height: 5),
-        Text('신분증 인증 회원만 활동 가능한\n당장만의 깨끗한 커뮤니티!', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-      ]),
+      child: const Text('에스크로우 안심 결제 시스템 가동 중', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -233,8 +226,8 @@ class _MainNavigationState extends State<MainNavigation> {
     return Column(children: [
       Container(height: 200, width: double.infinity, color: Colors.orange[50], child: const Center(child: Icon(Icons.location_on, size: 50, color: Colors.orange))),
       Expanded(child: ListView(children: [
-        _neighborRow('홍길동 (인증수행자)', '200m'),
-        _neighborRow('이이웃 (인증주문자)', '450m'),
+        _neighborRow('사용자A (인증수행자)', '200m'),
+        _neighborRow('사용자B (인증주문자)', '450m'),
       ])),
     ]);
   }
@@ -245,9 +238,9 @@ class _MainNavigationState extends State<MainNavigation> {
 
   Widget _chatView() {
     return Column(children: [
-      Container(padding: const EdgeInsets.all(10), color: Colors.blue[50], child: const Text('거래 완료 시 예치금이 지급됩니다.', style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))),
+      Container(padding: const EdgeInsets.all(10), color: Colors.blue[50], child: const Text('예치금이 안전하게 보관 중입니다.', style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))),
       const Expanded(child: Center(child: Text('채팅 화면'))),
-      Container(padding: const EdgeInsets.all(15), color: Colors.white, child: const Row(children: [Icon(Icons.add), Expanded(child: TextField(decoration: InputDecoration(hintText: '메시지 입력'))), Icon(Icons.call, color: Colors.green)])),
+      Container(padding: const EdgeInsets.all(15), color: Colors.white, child: const Row(children: [Icon(Icons.add), Expanded(child: TextField()), Icon(Icons.call, color: Colors.green)])),
     ]);
   }
 
@@ -259,7 +252,7 @@ class _MainNavigationState extends State<MainNavigation> {
         const SizedBox(height: 10),
         const Text('닉네임: 당장매니아', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 25),
-        _moneyBox(_isOrder ? "나의 총 예치금액" : "나의 정산 가능 수익", _isOrder ? "50,000원" : "12,500원"),
+        _moneyBox(_isOrder ? "예치금액" : "정산수익", _isOrder ? "50,000원" : "12,500원"),
         const SizedBox(height: 20),
         _infoRow(Icons.verified, "신분증 인증 완료"),
         _infoRow(Icons.phone_android, "휴대폰 인증 완료"),
@@ -268,8 +261,8 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   Widget _moneyBox(String t, String v) {
-    return Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t, style: const TextStyle(fontSize: 14)), const SizedBox(height: 8), Text(v, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange))]));
+    return Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t), Text(v, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange))]));
   }
 
-  Widget _infoRow(IconData i, String t) => ListTile(leading: Icon(i, color: Colors.blue), title: Text(t, style: const TextStyle(fontSize: 14)), trailing: const Icon(Icons.check_circle, color: Colors.blue, size: 18));
+  Widget _infoRow(IconData i, String t) => ListTile(leading: Icon(i, color: Colors.blue), title: Text(t), trailing: const Icon(Icons.check_circle, color: Colors.blue));
 }
