@@ -3,6 +3,9 @@ workflows:
     name: Default Workflow
     max_build_duration: 60
     instance_type: mac_mini_m2
+    environment:
+      android_sdk:
+        build_tools: 34.0.0
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
