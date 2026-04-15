@@ -1,20 +1,10 @@
-name: right_now_app
-description: A new Flutter project.
-publish_to: 'none'
-version: 1.0.0+1
-
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^2.0.0
-
-flutter:
-  uses-material-design: true
+  # 실제 상용 기능을 위한 핵심 라이브러리
+  firebase_core: ^2.24.0       # 구글 서버 연결용
+  firebase_auth: ^4.15.0       # 실제 휴대폰 문자 인증 및 구글 로그인용
+  google_sign_in: ^6.1.6      # 안드로이드 기기 내 실제 구글 계정 팝업용
+  geolocator: ^10.1.0         # 기기 하드웨어 GPS 실시간 수집용
+  permission_handler: ^11.1.0  # 안드로이드 OS의 실제 권한 요청 팝업용
