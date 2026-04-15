@@ -1,13 +1,30 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
 android {
     compileSdkVersion 33
+    namespace "com.nsk292513.right_now_app_v2"
+
     defaultConfig {
         applicationId "com.nsk292513.right_now_app_v2"
         minSdkVersion 21
         targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
     }
 }
+
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.2.1')
     implementation 'com.google.firebase:firebase-auth'
