@@ -10,7 +10,6 @@ class RightNowApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.orange,
-        fontFamily: 'Pretendard',
         scaffoldBackgroundColor: const Color(0xFFF8F9FA),
       ),
       home: const AuthGateController(),
@@ -57,18 +56,18 @@ class WelcomeLoginScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.bolt, size: 90, color: Colors.white),
-            const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: 2)),
+            const Text('당장', style: TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: 2)),
             const Text('RIGHT NOW', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold)),
             const SizedBox(height: 60),
             _buildInput("ID / Email"),
             const SizedBox(height: 12),
             _buildInput("Password", isObscure: true),
             const SizedBox(height: 30),
-            _buildActionBtn("\ub85c\uadf8\uc778", Colors.black, onSuccess),
+            _buildActionBtn("로그인", Colors.black, onSuccess),
             const SizedBox(height: 15),
             TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const IdentityAuthScreen())),
-              child: const Text('\ud68c\uc6d0\uac00\uc785 \ubc0f \ubcf8\uc778\uc778\uc99d', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: const Text('회원가입 및 본인인증', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -116,26 +115,26 @@ class _IdentityAuthScreenState extends State<IdentityAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('\ud1b5\ud569 \ubcf8\uc778 \uc778\uc99d'), centerTitle: true, elevation: 0, backgroundColor: Colors.white, foregroundColor: Colors.black),
+      appBar: AppBar(title: const Text('통합 본인 인증'), centerTitle: true, elevation: 0, backgroundColor: Colors.white, foregroundColor: Colors.black),
       body: Padding(
         padding: const EdgeInsets.all(30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('\uc2e0\ub8b0\ud560 \uc218 \uc788\ub294 \uac70\ub798\ub9bc \uc704\ud574\n\uc778\uc99d\uc744 \uc644\ub8cc\ud574\uc9c0\uc138\uc694.', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, height: 1.4)),
+            const Text('신뢰할 수 있는 거래를 위해\n인증을 완료해주세요.', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, height: 1.4)),
             const SizedBox(height: 40),
-            const TextField(decoration: InputDecoration(labelText: '\ud65c\ub3d9 \ub2nick\ub124\uc784 \uc124\uc815', border: OutlineInputBorder(), hintText: '\uc2e4\uba85 \ub300\uc2e0 \ub178\ucd9c\ub420 \uc774\ub984\uc785\ub2c8\ub2e4.')),
+            const TextField(decoration: InputDecoration(labelText: '활동 닉네임 설정', border: OutlineInputBorder(), hintText: '실명 대신 노출될 이름입니다.')),
             const SizedBox(height: 30),
-            _buildAuthRow("\uc2e0\ubd84\uc99d \uc9c4\uc704 \ud655\uc778 \uc778\uc99d", _idDone, () => setState(() => _idDone = true)),
+            _buildAuthRow("신분증 진위 확인 인증", _idDone, () => setState(() => _idDone = true)),
             const Divider(),
-            _buildAuthRow("\ubcf8\uc778 \uba85\uc758 \ud734\ub300\ud3ec \uc778\uc99d", _phoneDone, () => setState(() => _phoneDone = true)),
+            _buildAuthRow("본인 명의 휴대폰 인증", _phoneDone, () => setState(() => _phoneDone = true)),
             const Spacer(),
             SizedBox(
               width: double.infinity, height: 65,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: (_idDone && _phoneDone) ? Colors.orange : Colors.grey, shape: BorderRadius.circular(20)),
                 onPressed: (_idDone && _phoneDone) ? () => Navigator.pop(context) : null,
-                child: const Text('\uc778\uc99d \ubc0f \uac00\uc785 \uc644\ub8cc', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                child: const Text('인증 및 가입 완료', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -149,7 +148,7 @@ class _IdentityAuthScreenState extends State<IdentityAuthScreen> {
       contentPadding: EdgeInsets.zero,
       leading: Icon(isDone ? Icons.verified : Icons.circle_outlined, color: isDone ? Colors.blue : Colors.grey, size: 30),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      trailing: OutlinedButton(onPressed: onTab, child: Text(isDone ? "\uc644\ub8cc" : "\uc778\uc99d\ud558\uae30")),
+      trailing: OutlinedButton(onPressed: onTab, child: Text(isDone ? "완료" : "인증하기")),
     );
   }
 }
@@ -171,12 +170,12 @@ class _MainAppNavigationState extends State<MainAppNavigation> {
       appBar: AppBar(
         backgroundColor: Colors.white, elevation: 1,
         title: Row(children: [
-          const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900, fontSize: 26)),
+          const Text('당장', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900, fontSize: 26)),
           const SizedBox(width: 10),
           _buildBadge(),
         ]),
         actions: [
-          const Center(child: Text('\ubaa8\ub4dc\uc804\ud658', style: TextStyle(color: Colors.grey, fontSize: 11))),
+          const Center(child: Text('모드전환', style: TextStyle(color: Colors.grey, fontSize: 11))),
           Switch(value: _isOrderMode, onChanged: (v) => setState(() => _isOrderMode = v), activeColor: Colors.orange),
           IconButton(icon: const Icon(Icons.logout, color: Colors.grey), onPressed: widget.onLogout),
         ],
@@ -188,21 +187,21 @@ class _MainAppNavigationState extends State<MainAppNavigation> {
         selectedItemColor: Colors.orange[900], unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bolt_rounded), label: '\ub2f9\uc7a5\uc2e0\uccad'),
-          BottomNavigationBarItem(icon: Icon(Icons.location_on_outlined), label: '\uc2e4\uc2dc\uac04\uc9c0\ub3c4'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '\ucc44\ud305'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '\ub0b4\uc815\ubcf4'),
+          BottomNavigationBarItem(icon: Icon(Icons.bolt_rounded), label: '당장신청'),
+          BottomNavigationBarItem(icon: Icon(Icons.location_on_outlined), label: '실시간지도'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '채팅'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '내정보'),
         ],
       ),
       floatingActionButton: _isOrderMode ? FloatingActionButton.extended(
         onPressed: () {}, backgroundColor: Colors.orange,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('\uc2ec\ubd84\ub984 \uc694\uccad', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text('심부름 요청', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ) : null,
     );
   }
 
-  Widget _buildBadge() => Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Row(children: [Icon(Icons.verified, size: 12, color: Colors.blue), SizedBox(width: 4), Text('\uc778\uc99d\ud68c\uc6d0', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold))]));
+  Widget _buildBadge() => Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Row(children: [Icon(Icons.verified, size: 12, color: Colors.blue), SizedBox(width: 4), Text('인증회원', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold))]));
 
   Widget _buildBody() {
     switch (_tabIndex) {
@@ -219,10 +218,10 @@ class _MainAppNavigationState extends State<MainAppNavigation> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         _buildBanner(),
         const SizedBox(height: 25),
-        Text(_isOrderMode ? "\ub098\uc758 \uc2e4\uc2dc\uac04 \uc694\uccad \ud604\ud669" : "\uc218\ud589 \uac00\ub2a5\ud55c \uc8fc\ubcc0 \uc2ec\ubd84\ub984", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(_isOrderMode ? "나의 실시간 요청 현황" : "수행 가능한 주변 심부름", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 15),
-        _buildErrandCard(_isOrderMode ? "\ud3b8\uc758\uc810 \uc140\ub809\ud2b8 \uc74c\ub8cc 2\uce90" : "\uc0dd\uc218 \ubc30\ub2ec \ub300\ud589", _isOrderMode ? "\uc608\uce58\uae08\uc561: 3,500\uc6d0" : "\uc218\uc775: 4,000\uc6d0", _isOrderMode ? "\ub9e4\ucching \uc91d" : "250m \uac70\ub9ac"),
-        _buildErrandCard(_isOrderMode ? "\uc6b0\uccb4\uad6d \ud0dd\ubc30 \ub300\uae08 \uc120\uacb0\uc81c" : "\uc4f0\ub808\uae30 \ubd84\ub9ac\uc218\uac70 \ub300\ud589", _isOrderMode ? "\uc608\uce58\uae08\uc561: 15,000\uc6d0" : "\uc218\uc775: 3,000\uc6d0", _isOrderMode ? "\uc218\ud589\uc790 \uc774\ub3d9 \uc91d" : "400m \uac70\ub9ac"),
+        _buildErrandCard(_isOrderMode ? "편의점 셀렉트 음료 2캔" : "생수 배달 대행", _isOrderMode ? "예치금액: 3,500원" : "수익: 4,000원", _isOrderMode ? "매칭 중" : "250m 거리"),
+        _buildErrandCard(_isOrderMode ? "우체국 택배 대금 선결제" : "쓰레기 분리수거 대행", _isOrderMode ? "예치금액: 15,000원" : "수익: 3,000원", _isOrderMode ? "수행자 이동 중" : "400m 거리"),
       ]),
     );
   }
@@ -232,9 +231,9 @@ class _MainAppNavigationState extends State<MainAppNavigation> {
       width: double.infinity, padding: const EdgeInsets.all(25),
       decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.orangeAccent]), borderRadius: BorderRadius.circular(25), boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))]),
       child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('\uc5d0\uc2a4\ud06c\ub85c\uc6b0 \uc548\uc2ec \uacb0\uc81c \uc2dc\uc2a4\ud15c \uc801\uc6a9', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
+        Text('에스크로우 안심 결제 시스템 적용', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
         SizedBox(height: 10),
-        Text('\uc2e0\ubd84\uc99d \uc778\uc99d \uc644\ub8cc\ub41c \uc774\uc6c3\uacfc\ub9cc\n\uc548\uc804\ud558\uac8c \uac70\ub798\ud558\uc138\uc694!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+        Text('신분증 인증 완료된 이웃과만\n안전하게 거래하세요!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
       ]),
     );
   }
@@ -256,12 +255,12 @@ class _MainAppNavigationState extends State<MainAppNavigation> {
 
   Widget _mapView() {
     return Column(children: [
-      Expanded(flex: 3, child: Container(width: double.infinity, color: Colors.orange[50], child: const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.my_location, size: 50, color: Colors.orange), SizedBox(height: 10), Text('\uc2e4\uc2dc\uac04 \uc704\uce58 \uae30\ubc18 \uc774\uc6c3 \ub9e4\ucching \uc91d...', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold))])))),
+      Expanded(flex: 3, child: Container(width: double.infinity, color: Colors.orange[50], child: const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.my_location, size: 50, color: Colors.orange), SizedBox(height: 10), Text('실시간 위치 기반 이웃 매칭 중...', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold))])))),
       Expanded(flex: 4, child: ListView(padding: const EdgeInsets.all(20), children: [
-        const Text('\uc8fc\ubcc0 \uc548\uc2ec\ubc88\ud638 \ud1b5\ud654 \uac00\ub2a5 \uc774\uc6c3', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        const Text('주변 안심번호 통화 가능 이웃', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
         const SizedBox(height: 15),
-        _neighborRow('\ud64d\uae38\ub3d9 (\uc778\uc99d\uc218\ud589\uc790)', '150m', '5.0'),
-        _neighborRow('\uc774\uc774\uc6c3 (\uc778\uc99d\uc8fc\ubb38\uc790)', '320m', '4.9'),
+        _neighborRow('홍길동 (인증수행자)', '150m', '5.0'),
+        _neighborRow('이이웃 (인증주문자)', '320m', '4.9'),
       ])),
     ]);
   }
@@ -271,16 +270,16 @@ class _MainAppNavigationState extends State<MainAppNavigation> {
       contentPadding: EdgeInsets.zero,
       leading: const CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.person, color: Colors.white)),
       title: Text(n, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text('\uac70\ub9ac: $d | \ubcc4\uc810: $r'),
+      subtitle: Text('거리: $d | 별점: $r'),
       trailing: const Icon(Icons.call, color: Colors.green, size: 30),
     );
   }
 
   Widget _chatView() {
     return Column(children: [
-      Container(width: double.infinity, padding: const EdgeInsets.all(12), color: Colors.blue[50], child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.lock, size: 14, color: Colors.blue), SizedBox(width: 8), Text('\uc5d0\uc2a4\ud06c\ub85c\uc6b0 \ubcf4\ud638: \uac70\ub798 \uc644\ub8cc \uc2dc\uc5d0\ub9cc \uc790\uae08\uc774 \uc9c0\uae08\ub429\ub2c8\ub2e4.', style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))])),
-      const Expanded(child: Center(child: Text('\ucc44\ud305 \uc2dc\ubbac\ub808\uc774\uc158 \ud654\uba74'))),
-      Container(padding: const EdgeInsets.all(15), decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFEEEEEE)))), child: Row(children: [const Icon(Icons.add_circle_outline, color: Colors.grey), const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: TextField(decoration: InputDecoration(hintText: '\uba54\uc2dc\uc9c0\ub9bc \uc785\ub825\ud558\uc138\uc694...', border: InputBorder.none)))), const Icon(Icons.call, color: Colors.green), const SizedBox(width: 15), const Icon(Icons.send, color: Colors.orange)]))
+      Container(width: double.infinity, padding: const EdgeInsets.all(12), color: Colors.blue[50], child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.lock, size: 14, color: Colors.blue), SizedBox(width: 8), Text('에스크로우 보호: 거래 완료 시에만 자금이 지급됩니다.', style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold))])),
+      const Expanded(child: Center(child: Text('채팅 시뮬레이션 화면'))),
+      Container(padding: const EdgeInsets.all(15), decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFEEEEEE)))), child: Row(children: [const Icon(Icons.add_circle_outline, color: Colors.grey), const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: TextField(decoration: InputDecoration(hintText: '메시지를 입력하세요...', border: InputBorder.none)))), const Icon(Icons.call, color: Colors.green), const SizedBox(width: 15), const Icon(Icons.send, color: Colors.orange)]))
     ]);
   }
 
@@ -290,13 +289,13 @@ class _MainAppNavigationState extends State<MainAppNavigation> {
       child: Column(children: [
         const CircleAvatar(radius: 45, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 55)),
         const SizedBox(height: 15),
-        const Text('\ub2d9\ub124\uc784: \ub2f9\uc7a5\ub9e4\ub2c8\uc544', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const Text('닉네임: 당장매니저', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         const SizedBox(height: 30),
-        _moneyBox(_isOrderMode ? "\ub098\uc758 \ucd1d \uc608\uce58\uae08\uc561" : "\ub098\uc758 \uc815\uc0b0 \uac00\ub2a5 \uc218\uc775", _isOrderMode ? "50,000\uc6d0" : "12,500\uc6d0"),
+        _moneyBox(_isOrderMode ? "나의 총 예치금액" : "나의 정산 가능 수익", _isOrderMode ? "50,000원" : "12,500원"),
         const SizedBox(height: 30),
-        _profileInfoRow(Icons.verified, "\uc2e0\ubd84\uc99d \uc9c4\uc704 \ud655\uc778 \uc644\ub8cc"),
-        _profileInfoRow(Icons.phone_android, "\ubcf8\uc778 \uba85\uc758 \ud734\ub300\ud3ec \uc778\uc99d \uc644\ub8cc"),
-        _profileInfoRow(Icons.security, "\uac1c\uc778\uc815\ubcf4 \uc554\ud638\ud654 \ubcf4\ud638 \uc91d"),
+        _profileInfoRow(Icons.verified, "신분증 진위 확인 완료"),
+        _profileInfoRow(Icons.phone_android, "본인 명의 휴대폰 인증 완료"),
+        _profileInfoRow(Icons.security, "개인정보 암호화 보호 중"),
       ]),
     );
   }
