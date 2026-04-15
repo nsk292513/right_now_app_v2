@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   
-  # 실제 상용 기능을 위한 핵심 라이브러리 (성규님 앱의 심장)
   firebase_core: ^2.24.0
   firebase_auth: ^4.15.0
   google_sign_in: ^6.1.6
