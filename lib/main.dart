@@ -8,7 +8,8 @@ class DangJangApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange, fontFamily: 'Pretendard'),
+      title: 'RightNow',
+      theme: ThemeData(primarySwatch: Colors.orange),
       home: const AuthWrapper(),
     );
   }
@@ -22,20 +23,20 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _isLoggedIn = false;
-  void _enter() => setState(() => _isLoggedIn = true);
-  void _exit() => setState(() => _isLoggedIn = false);
+  void _onEnter() => setState(() => _isLoggedIn = true);
+  void _onExit() => setState(() => _isLoggedIn = false);
 
   @override
   Widget build(BuildContext context) {
     return _isLoggedIn 
-      ? MainNavigation(onLogout: _exit) 
-      : LoginScreen(onLogin: _enter);
+        ? MainFrame(onLogout: _onExit) 
+        : LoginFrame(onLogin: _onEnter);
   }
 }
 
-class LoginScreen extends StatelessWidget {
+class LoginFrame extends StatelessWidget {
   final VoidCallback onLogin;
-  const LoginScreen({super.key, required this.onLogin});
+  const LoginFrame({super.key, required this.onLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -43,21 +44,31 @@ class LoginScreen extends StatelessWidget {
       body: Container(
         padding: const EdgeInsets.all(30),
         width: double.infinity,
-        decoration: const BoxDecoration(gradient: LinearGradient(colors: [Colors.orange, Colors.deepOrange])),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(colors: [Colors.orange, Colors.deepOrange])
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.bolt, size: 80, color: Colors.white),
-            const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.white, fontSize: 42, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
-            _input("ID"),
+            const Text('DANG JANG', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 50),
+            _inputField("ID"),
             const SizedBox(height: 10),
-            _input("Password", obscure: true),
-            const SizedBox(height: 20),
-            _btn("\ub85c\uadf8\uc778", Colors.black, onLogin),
+            _inputField("Password", obs: true),
+            const SizedBox(height: 25),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, shape: BorderRadius.circular(15)),
+                onPressed: onLogin,
+                child: const Text('LOG IN', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const RegisterScreen())),
-              child: const Text('\ud68c\uc6d0\uac00\uc785 \ud558\uae30', style: TextStyle(color: Colors.white)),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const JoinFrame())),
+              child: const Text('Sign Up & Identity Verification', style: TextStyle(color: Colors.white70)),
             ),
           ],
         ),
@@ -65,62 +76,77 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _input(String h, {bool obscure = false}) {
-    return TextField(obscureText: obscure, decoration: InputDecoration(filled: true, fillColor: Colors.white, hintText: h, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))));
-  }
-
-  Widget _btn(String t, Color c, VoidCallback f) {
-    return SizedBox(width: double.infinity, height: 55, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: c, shape: BorderRadius.circular(15)), onPressed: f, child: Text(t, style: const TextStyle(color: Colors.white, fontSize: 18))));
+  Widget _inputField(String h, {bool obs = false}) {
+    return TextField(
+      obscureText: obs,
+      decoration: InputDecoration(
+        filled: true, fillColor: Colors.white, hintText: h,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))
+      ),
+    );
   }
 }
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class JoinFrame extends StatefulWidget {
+  const JoinFrame({super.key});
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<JoinFrame> createState() => _JoinFrameState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  bool _v1 = false;
-  bool _v2 = false;
+class _JoinFrameState extends State<JoinFrame> {
+  bool v1 = false;
+  bool v2 = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('\ud68c\uc6d0\uac00\uc785 \ubc0f \uc778\uc99d')),
+      appBar: AppBar(title: const Text('Identity Verification'), elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('\ubcf4\uc548 \uc778\uc99d\uc744\n\uc9c4\ud589\ud574\uc9c0\uc138\uc694.', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const Text('Security Auth', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            const Text('Identity & Phone Verification required.'),
             const SizedBox(height: 30),
-            const TextField(decoration: InputDecoration(labelText: '\ub2nick\ub124\uc784 \uc124\uc815', border: OutlineInputBorder())),
+            const TextField(decoration: InputDecoration(labelText: 'Nickname', border: OutlineInputBorder())),
             const SizedBox(height: 20),
-            _authTile("\uc2e0\ubd84\uc99d \uc778\uc99d", _v1, () => setState(() => _v1 = true)),
-            _authTile("\ud734\ub300\ud3ec \ubcf8\uc778 \uc778\uc99d", _v2, () => setState(() => _v2 = true)),
+            _vTile("ID Card Verification", v1, () => setState(() => v1 = true)),
+            _vTile("Phone Number Auth", v2, () => setState(() => v2 = true)),
             const Spacer(),
-            SizedBox(width: double.infinity, height: 55, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: (_v1 && _v2) ? Colors.orange : Colors.grey), onPressed: (_v1 && _v2) ? () => Navigator.pop(context) : null, child: const Text('\uac00\uc785 \uc644\ub8cc', style: TextStyle(color: Colors.white)))),
+            SizedBox(
+              width: double.infinity, height: 55,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: (v1 && v2) ? Colors.orange : Colors.grey),
+                onPressed: (v1 && v2) ? () => Navigator.pop(context) : null,
+                child: const Text('COMPLETE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _authTile(String t, bool d, VoidCallback f) {
-    return ListTile(leading: Icon(d ? Icons.check_circle : Icons.circle_outlined, color: d ? Colors.blue : Colors.grey), title: Text(t), trailing: OutlinedButton(onPressed: f, child: Text(d ? "\uc644\ub8cc" : "\uc778\uc99d")));
+  Widget _vTile(String t, bool d, VoidCallback f) {
+    return ListTile(
+      leading: Icon(d ? Icons.check_circle : Icons.circle_outlined, color: d ? Colors.blue : Colors.grey),
+      title: Text(t),
+      trailing: ElevatedButton(onPressed: f, child: Text(d ? "DONE" : "AUTH")),
+    );
   }
 }
 
-class MainNavigation extends StatefulWidget {
+class MainFrame extends StatefulWidget {
   final VoidCallback onLogout;
-  const MainNavigation({super.key, required this.onLogout});
+  const MainFrame({super.key, required this.onLogout});
   @override
-  State<MainNavigation> createState() => _MainNavigationState();
+  State<MainFrame> createState() => _MainFrameState();
 }
 
-class _MainNavigationState extends State<MainNavigation> {
-  int _tab = 0;
+class _MainFrameState extends State<MainFrame> {
+  int _tabIdx = 0;
   bool _isOrder = true;
 
   @override
@@ -128,66 +154,82 @@ class _MainNavigationState extends State<MainNavigation> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Row(children: [const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)), const SizedBox(width: 8), _badge()]),
+        title: Row(children: [
+          const Text('DANG JANG', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+          const SizedBox(width: 8),
+          _authBadge(),
+        ]),
         actions: [
           Switch(value: _isOrder, onChanged: (v) => setState(() => _isOrder = v), activeColor: Colors.orange),
           IconButton(icon: const Icon(Icons.logout, color: Colors.grey), onPressed: widget.onLogout),
         ],
       ),
-      body: IndexedStack(index: _tab, children: [_home(), _map(), _chat(), _profile()]),
+      body: _buildPage(),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _tab,
-        onTap: (i) => setState(() => _tab = i),
+        currentIndex: _tabIdx,
+        onTap: (i) => setState(() => _tabIdx = i),
         selectedItemColor: Colors.orange,
+        unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '\ub2f9\uc7a5\uc2e0\uccad'),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: '\uc8fc\ubcc0\uc9c0\ub3c4'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: '\ucc44\ud305'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '\ub0b4\uc815\ubcf4'),
+          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Apply'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
 
-  Widget _badge() => Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Text('\uc778\uc99d\ud68c\uc6d0', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)));
+  Widget _authBadge() => Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Text('VERIFIED', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)));
 
-  Widget _home() {
+  Widget _buildPage() {
+    if (_tabIdx == 1) return _mapPage();
+    if (_tabIdx == 2) return _chatPage();
+    if (_tabIdx == 3) return _profilePage();
+    return _homePage();
+  }
+
+  Widget _homePage() {
     return SingleChildScrollView(
       child: Column(children: [
         _banner(),
-        _itemCard(_isOrder ? "\uc74c\ub8cc\uc218 \uc0ac\ub2e4\uc8fc\uae30" : "\ud3b8\uc758\uc810 \ub300\ud589", _isOrder ? "3,000\uc6d0" : "4,000\uc6d0", _isOrder ? "\uc608\uce58\uae08\uc561 \ud655\uc778" : "200m \uc774\ub0b4"),
+        _item("Beverage Delivery", _isOrder ? "Deposit: 3,000" : "Earn: 3,000", _isOrder ? "Waiting" : "200m"),
+        _item("Parcel Pickup", _isOrder ? "Deposit: 5,000" : "Earn: 5,000", _isOrder ? "Active" : "450m"),
       ]),
     );
   }
 
-  Widget _banner() => Container(width: double.infinity, margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(15)), child: const Text('\uc5d0\uc2a4\ud06c\ub85c\uc6b0 \uc548\uc2ec \uacb0\uc81c \uc2dc\uc2a4\ud15c', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)));
+  Widget _banner() => Container(width: double.infinity, margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(25), decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(15)), child: const Text('ESCROW PROTECTION ACTIVE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)));
 
-  Widget _itemCard(String t, String p, String s) => ListTile(title: Text(t), subtitle: Text(s), trailing: Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)));
+  Widget _item(String t, String p, String s) => ListTile(title: Text(t), subtitle: Text(s), trailing: Text(p, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)));
 
-  Widget _map() => Column(children: [
-    Container(height: 150, color: Colors.orange[50], child: const Center(child: Icon(Icons.location_on, color: Colors.orange, size: 40))),
-    const ListTile(title: Text('\uc548\uc2ec\ubc88\ud638 \ud1b5\ud654 \uac00\ub2a5 \uc774\uc6c3'), trailing: Icon(Icons.call, color: Colors.green)),
+  Widget _mapPage() => Column(children: [
+    Container(height: 180, width: double.infinity, color: Colors.orange[50], child: const Icon(Icons.location_on, size: 50, color: Colors.orange)),
+    const ListTile(title: Text('Nearby Verified Users'), trailing: Icon(Icons.call, color: Colors.green)),
+    const ListTile(title: Text('Anonymous Call Support'), subtitle: Text('Privacy Protected')),
   ]);
 
-  Widget _chat() => Column(children: [
-    const Expanded(child: Center(child: Text('\ucc44\ud305 \uc2dc\ubbac\ub808\uc774\uc158 \uc900\ube44 \uc644\ub8cc'))),
-    Container(padding: const EdgeInsets.all(10), color: Colors.white, child: const Row(children: [Icon(Icons.add), Expanded(child: TextField()), Icon(Icons.call, color: Colors.green)])),
+  Widget _chatPage() => Column(children: [
+    Container(padding: const EdgeInsets.all(10), color: Colors.blue[50], child: const Text('Escrow: Money is safe until you confirm.')),
+    const Expanded(child: Center(child: Text('Chat Simulator'))),
+    Container(padding: const EdgeInsets.all(15), color: Colors.white, child: const Row(children: [Icon(Icons.add), Expanded(child: TextField()), Icon(Icons.call, color: Colors.green)])),
   ]);
 
-  Widget _profile() {
+  Widget _profilePage() {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(30),
       child: Column(children: [
         const CircleAvatar(radius: 40, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 50)),
-        const SizedBox(height: 10),
-        const Text('\ub2d9\ub124\uc784: \ub2f9\uc7a5\ub9e4\ub2c8\uc544', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 15),
+        const Text('Nickname: DangJangMania', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 30),
+        _moneyBox(_isOrder ? "My Deposit" : "Settlement Available", _isOrder ? "50,000" : "12,500"),
         const SizedBox(height: 20),
-        _moneyBox(_isOrder ? "\ubbf8\ub9ac \uc608\uce58\ud55c \uae08\uc561" : "\uc815\uc0b0 \uac00\ub2a5\ud55c \uae08\uc561", _isOrder ? "50,000\uc6d0" : "12,500\uc6d0"),
-        const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('\uc2e0\ubd84\uc99d/\ud734\ub300\ud3ec \uc778\uc99d \uc644\ub8cc')),
+        const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('ID & Phone Verified')),
       ]),
     );
   }
 
-  Widget _moneyBox(String t, String v) => Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t), Text(v, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange))]));
+  Widget _moneyBox(String t, String v) => Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(15)), child: Column(children: [Text(t), Text('$v KRW', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange))]));
 }
