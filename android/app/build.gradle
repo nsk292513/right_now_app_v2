@@ -7,14 +7,20 @@ plugins {
 
 android {
     namespace "com.nsk292513.right_now_app_v2"
-    compileSdkVersion 34
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.nsk292513.right_now_app_v2"
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+        }
     }
 }
 
