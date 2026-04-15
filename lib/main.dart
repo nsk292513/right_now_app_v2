@@ -8,7 +8,7 @@ class DangJangApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange, fontFamily: 'Pretendard'),
+      theme: ThemeData(primarySwatch: Colors.orange),
       home: const AuthWrapper(),
     );
   }
@@ -50,16 +50,16 @@ class LoginScr extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.bolt, size: 80, color: Colors.white),
-            const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.white, fontSize: 42, fontWeight: FontWeight.bold)), // '당장'
+            const Text('RIGHT NOW', style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
             const SizedBox(height: 40),
             _input("ID"),
             const SizedBox(height: 10),
             _input("Password", obscure: true),
             const SizedBox(height: 20),
-            _btn("\ub85c\uadf8\uc778", Colors.black, onLogin), // '로그인'
+            _btn("LOGIN", Colors.black, onLogin),
             TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const JoinScr())),
-              child: const Text('\ud68c\uc6d0\uac00\uc785 \ud558\uae30', style: TextStyle(color: Colors.white)), // '회원가입 하기'
+              child: const Text('New user? Sign Up', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -96,18 +96,18 @@ class _JoinScrState extends State<JoinScr> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('\ud68c\uc6d0\uac00\uc785 \ubc0f \uc778\uc99d'), elevation: 0), // '회원가입 및 인증'
+      appBar: AppBar(title: const Text('Verification'), elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('\ubcf4\uc548\uc744 \uc704\ud574\n\ubcf8\uc778 \uc778\uc99d\uc744 \uc9c4\ud589\ud574\uc9c0\uc138\uc694.', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)), // '보안을 위해 본인 인증을...'
+            const Text('Security Check', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 30),
-            const TextField(decoration: InputDecoration(labelText: '\ub2nick\ub124\uc784', border: OutlineInputBorder())), // '닉네임'
+            const TextField(decoration: InputDecoration(labelText: 'Nickname', border: OutlineInputBorder())),
             const SizedBox(height: 20),
-            _auth("\uc2e0\ubd84\uc99d \uc778\uc99d", _idV, () => setState(() => _idV = true)), // '신분증 인증'
-            _auth("\ud734\ub300\ud3ec \ubcf8\uc778 \uc778\uc99d", _phV, () => setState(() => _phV = true)), // '휴대폰 본인 인증'
+            _auth("ID Card Auth", _idV, () => setState(() => _idV = true)),
+            _auth("Phone Auth", _phV, () => setState(() => _phV = true)),
             const Spacer(),
             SizedBox(
               width: double.infinity,
@@ -115,7 +115,7 @@ class _JoinScrState extends State<JoinScr> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: (_idV && _phV) ? Colors.orange : Colors.grey),
                 onPressed: (_idV && _phV) ? () => Navigator.pop(context) : null,
-                child: const Text('\uac00\uc785 \uc644\ub8cc', style: TextStyle(color: Colors.white)), // '가입 완료'
+                child: const Text('SIGN UP COMPLETE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -128,7 +128,7 @@ class _JoinScrState extends State<JoinScr> {
     return ListTile(
       leading: Icon(d ? Icons.check_circle : Icons.circle_outlined, color: d ? Colors.blue : Colors.grey),
       title: Text(t),
-      trailing: OutlinedButton(onPressed: f, child: Text(d ? "\uc644\ub8cc" : "\uc778\uc99d")), // '완료', '인증'
+      trailing: OutlinedButton(onPressed: f, child: Text(d ? "DONE" : "VERIFY")),
     );
   }
 }
@@ -149,29 +149,42 @@ class _MainNavState extends State<MainNav> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Row(children: [const Text('\ub2f9\uc7a5', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)), const SizedBox(width: 8), _badge()]), // '당장'
+        title: Row(children: [const Text('RIGHT NOW', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)), const SizedBox(width: 8), _badge()]),
         actions: [
           Switch(value: _isOrd, onChanged: (v) => setState(() => _isOrd = v), activeColor: Colors.orange),
           IconButton(icon: const Icon(Icons.logout, color: Colors.grey), onPressed: widget.onLogout),
         ],
       ),
-      body: _idx == 3 ? _profile() : Center(child: Text(_isOrd ? "\uc8fc\ubb38\uc790 \ubaa8\ub4dc" : "\uc218\ud589\uc790 \ubaa8\ub4dc", style: const TextStyle(fontSize: 20))), // '주문자 모드', '수행자 모드'
+      body: _idx == 3 ? _profile() : _dummyBody(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _idx,
         onTap: (i) => setState(() => _idx = i),
         selectedItemColor: Colors.orange[900],
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: '\ub2f9\uc7a5\uc2e0\uccad'), // '당장신청'
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: '\uc8fc\ubcc0\uc9c0\ub3c4'), // '주변지도'
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: '\ucc44\ud305'), // '채팅'
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '\ub0b4\uc815\ubcf4'), // '내정보'
+          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Apply'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Page'),
         ],
       ),
     );
   }
 
-  Widget _badge() => Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Text('\uc778\uc99d\ud68c\uc6d0', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold))); // '인증회원'
+  Widget _badge() => Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(5)), child: const Text('VERIFIED', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)));
+
+  Widget _dummyBody() {
+    return Center(child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.check_circle_outline, size: 100, color: Colors.orange[100]),
+        const SizedBox(height: 20),
+        Text(_isOrd ? "ORDER MODE ACTIVE" : "WORKER MODE ACTIVE", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
+        const SizedBox(height: 10),
+        const Text("System Protected by Escrow", style: TextStyle(color: Colors.blue)),
+      ],
+    ));
+  }
 
   Widget _profile() {
     return Padding(
@@ -180,11 +193,11 @@ class _MainNavState extends State<MainNav> {
         children: [
           const CircleAvatar(radius: 40, backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white, size: 45)),
           const SizedBox(height: 15),
-          const Text('\ub2f9\uc7a5\ub9e4\ub2c8\uc544 \ub2d8', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), // '당장매니아 님'
+          const Text('User: DangJang_VIP', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
-          _box(_isOrd ? "\ubbf8\ub9ac \uc608\uce58\ud55c \uae08\uc561" : "\uc815\uc0b0 \uac00\ub2a5\ud55c \uae08\uc561", _isOrd ? "50,000\uc6d0" : "12,500\uc6d0"), // '미리 예치한 금액', '정산 가능한 금액'
+          _box(_isOrd ? "Deposit Amount" : "Settlement Amount", _isOrd ? "50,000 KRW" : "12,500 KRW"),
           const SizedBox(height: 20),
-          const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('\uc2e0\ubd84\uc99d \ubc0f \ubcf8\uc778\uc778\uc99d \uc644\ub8cc')), // '신분증 및 본인인증 완료'
+          const ListTile(leading: Icon(Icons.verified, color: Colors.blue), title: Text('ID & Phone Verification Done')),
         ],
       ),
     );
