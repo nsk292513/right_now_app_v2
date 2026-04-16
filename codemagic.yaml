@@ -12,10 +12,10 @@ workflows:
         script: flutter pub get
       - name: Build Android APK
         script: |
-          export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-11.jdk/Contents/Home"
-          flutter build apk --release --no-tree-shake-icons
+          cd android
+          ./gradlew assembleRelease -x compileKotlin -x compileReleaseKotlin
     artifacts:
-      - build/app/outputs/flutter-apk/*.apk
+      - android/app/build/outputs/apk/release/*.apk
     publishing:
       email:
         recipients:
