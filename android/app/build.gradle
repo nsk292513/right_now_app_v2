@@ -1,12 +1,10 @@
-plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
-}
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     namespace "com.nsk292513.right_now_app_v2"
-    compileSdk 34
+    compileSdkVersion 34
     ndkVersion "25.1.8937393"
 
     compileOptions {
@@ -20,8 +18,8 @@ android {
 
     defaultConfig {
         applicationId "com.nsk292513.right_now_app_v2"
-        minSdk 21
-        targetSdk 34
+        minSdkVersion 21
+        targetSdkVersion 34
         versionCode 110
         versionName "1.0.0"
     }
