@@ -7,6 +7,15 @@ android {
     namespace "com.nsk292513.right_now_app_v2"
     compileSdk 34
 
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -24,11 +33,7 @@ android {
         release {
             minifyEnabled false
             shrinkResources false
-            // 에러의 원인인 signingConfig 설정을 아예 삭제했습니다.
-        }
-        debug {
-            minifyEnabled false
-            shrinkResources false
+            signingConfig signingConfigs.debug
         }
     }
 }
@@ -40,10 +45,10 @@ flutter {
 dependencies {
     constraints {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
-            because("fix duplicate classes")
+            because("duplicate_fix")
         }
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0") {
-            because("fix duplicate classes")
+            because("duplicate_fix")
         }
     }
 }
