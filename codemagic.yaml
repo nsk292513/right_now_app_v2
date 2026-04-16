@@ -1,16 +1,13 @@
 workflows:
   default-workflow:
     name: Default Workflow
-    max_build_duration: 60
     instance_type: mac_mini_m2
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
-      - name: Accept Android Licenses
-        script: yes | sdkmanager --licenses || true
-      - name: Force Build APK
+      - name: Build Android APK
         script: |
-          flutter build apk --release --no-tree-shake-icons --build-name=1.0.0 --build-number=109 --target-platform android-arm64 --split-debug-info=build/app/outputs/symbols
+          flutter build apk --release --no-tree-shake-icons
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
