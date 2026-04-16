@@ -12,7 +12,7 @@ workflows:
         script: flutter pub get
       - name: Build Android APK
         script: |
-          export JAVA_HOME=$JAVA_HOME
+          export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-11.jdk/Contents/Home"
           flutter build apk --release --no-tree-shake-icons
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
