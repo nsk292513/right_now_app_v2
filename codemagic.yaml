@@ -10,15 +10,12 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
-      - name: Final Build
+      - name: Force Debug Build
         script: |
           export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-11.jdk/Contents/Home"
-          cd android
-          chmod +x gradlew
-          ./gradlew clean
-          ./gradlew assembleRelease -x compileKotlin -x compileReleaseKotlin -x lint
+          flutter build apk --debug --no-tree-shake-icons
     artifacts:
-      - android/app/build/outputs/apk/release/*.apk
+      - build/app/outputs/flutter-apk/*.apk
     publishing:
       email:
         recipients:
