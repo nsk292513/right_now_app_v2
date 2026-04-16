@@ -12,7 +12,6 @@ workflows:
         script: flutter pub get
       - name: Build Android APK
         script: |
-          # 리소스 에러 무시 및 최적화 빌드
           flutter build apk --release --no-tree-shake-icons --build-number=93 --no-pub
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
