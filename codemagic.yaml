@@ -12,9 +12,9 @@ workflows:
           rm -rf android/app/build
       - name: Accept Android Licenses
         script: yes | sdkmanager --licenses || true
-      - name: Force Build Android APK
+      - name: Build Android APK
         script: |
-          flutter build apk --release --no-tree-shake-icons --build-name=1.0.0 --build-number=105
+          flutter build apk --release --no-tree-shake-icons --no-pub
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
