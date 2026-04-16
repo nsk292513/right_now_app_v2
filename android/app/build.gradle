@@ -1,6 +1,5 @@
 plugins {
     id "com.android.application"
-    // id "kotlin-android"  <-- 이 줄을 삭제하거나 앞에 //를 붙여서 지우세요!
     id "dev.flutter.flutter-gradle-plugin"
 }
 
@@ -12,8 +11,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
-
-    // kotlinOptions { ... } <-- 이 부분도 통째로 지우거나 주석 처리하세요!
 
     defaultConfig {
         applicationId "com.nsk292513.right_now_app_v2"
