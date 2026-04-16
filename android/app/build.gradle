@@ -7,29 +7,22 @@ plugins {
 android {
     namespace "com.nsk292513.right_now_app_v2"
     compileSdk 34
-    ndkVersion "25.1.8937393"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '11'
     }
 
     defaultConfig {
         applicationId "com.nsk292513.right_now_app_v2"
         minSdk 21
         targetSdk 34
-        versionCode 110
+        versionCode 112
         versionName "1.0.0"
-    }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-        }
     }
 }
 
