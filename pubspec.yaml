@@ -1,7 +1,7 @@
 name: right_now_app_v2
 description: A new Flutter project.
 publish_to: 'none'
-version: 1.0.0+111
+version: 1.0.0+112
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -10,10 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  geolocator: 10.1.0
-  google_sign_in: 6.1.0
-  permission_handler: 11.0.0
-  flutter_lints: 2.0.1
+  geolocator: any
+  google_sign_in: any
+  permission_handler: any
+  flutter_lints: ^2.0.0
 
 dev_dependencies:
   flutter_test:
