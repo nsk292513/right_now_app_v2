@@ -10,13 +10,13 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
-      - name: Final Force Build
+      - name: Final Build
         script: |
           export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-11.jdk/Contents/Home"
           cd android
           chmod +x gradlew
           ./gradlew clean
-          ./gradlew assembleRelease -x compileKotlin -x compileReleaseKotlin -x lint --stacktrace
+          ./gradlew assembleRelease -x compileKotlin -x compileReleaseKotlin -x lint
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
     publishing:
