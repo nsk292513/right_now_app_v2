@@ -24,6 +24,12 @@ android {
         versionCode 112
         versionName "1.0.0"
     }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+        }
+    }
 }
 
 flutter {
