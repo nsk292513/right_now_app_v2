@@ -22,7 +22,9 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            // 서명 설정이 서버에 없어서 터지는 에러를 막기 위해 false로 고정합니다.
+            shrinkResources false
+            minifyEnabled false
         }
     }
 }
