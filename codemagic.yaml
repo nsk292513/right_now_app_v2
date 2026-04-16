@@ -8,9 +8,11 @@ workflows:
         script: flutter pub get
       - name: Clean Cache
         script: flutter clean
+      - name: Accept Android Licenses
+        script: yes | sdkmanager --licenses || true
       - name: Force Build Android APK
         script: |
-          flutter build apk --release --no-tree-shake-icons --build-name=1.0.0 --build-number=103
+          flutter build apk --release --no-tree-shake-icons --build-name=1.0.0 --build-number=105
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
