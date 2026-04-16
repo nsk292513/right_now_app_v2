@@ -3,15 +3,12 @@ workflows:
     name: Default Workflow
     max_build_duration: 60
     instance_type: mac_mini_m2
-    cache:
-      cache_paths:
-        - $HOME/.gradle/caches
-        - $FLUTTER_ROOT/.pub-cache
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
       - name: Build Android APK
         script: |
+          # 도구 설치 무시하고 바로 빌드 돌입
           flutter build apk --release --no-tree-shake-icons --build-number=93 --no-pub
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
