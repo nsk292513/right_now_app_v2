@@ -10,14 +10,12 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
-      - name: Build and Force Export
+      - name: Build APK
         script: |
           export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-11.jdk/Contents/Home"
           flutter build apk --debug --no-tree-shake-icons
-          mkdir -p $CM_BUILD_DIR/out
-          find . -name "*.apk" -type f -exec cp {} $CM_BUILD_DIR/out/app-debug.apk \;
     artifacts:
-      - out/*.apk
+      - build/app/outputs/flutter-apk/*.apk
     publishing:
       email:
         recipients:
