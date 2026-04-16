@@ -6,8 +6,10 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
-      - name: Clean Cache
-        script: flutter clean
+      - name: Hard Reset
+        script: |
+          flutter clean
+          rm -rf android/app/build
       - name: Accept Android Licenses
         script: yes | sdkmanager --licenses || true
       - name: Force Build Android APK
