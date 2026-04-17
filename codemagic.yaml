@@ -3,14 +3,13 @@ workflows:
     name: Default Workflow
     instance_type: mac_mini_m2
     environment:
-      java: 11
+      java: 17
       flutter: stable
     scripts:
-      - name: Build APK Force
+      - name: Force Build
         script: |
           flutter pub get
-          flutter clean
-          flutter build apk --debug --no-tree-shake-icons
+          flutter build apk --debug --no-tree-shake-icons --ignore-deprecation
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
