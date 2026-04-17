@@ -6,9 +6,8 @@ workflows:
       java: 11
       flutter: stable
     scripts:
-      - name: Flutter Build APK
+      - name: Build
         script: |
-          export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-11.jdk/Contents/Home"
           flutter pub get
           flutter build apk --debug --no-tree-shake-icons
     artifacts:
