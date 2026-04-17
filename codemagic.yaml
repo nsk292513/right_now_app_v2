@@ -6,12 +6,13 @@ workflows:
       java: 17
       flutter: stable
     scripts:
-      - name: Build APK
+      - name: Build and Force Move
         script: |
           flutter pub get
-          flutter build apk --debug --no-tree-shake-icons || true
+          flutter build apk --debug --no-tree-shake-icons
+          cp build/app/outputs/flutter-apk/app-debug.apk ./qrchat-final.apk
     artifacts:
-      - build/app/outputs/flutter-apk/*.apk
+      - ./*.apk
     publishing:
       email:
         recipients:
