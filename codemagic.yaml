@@ -6,7 +6,7 @@ workflows:
       java: 11
       flutter: stable
     scripts:
-      - name: Build
+      - name: Build APK
         script: |
           flutter pub get
           flutter build apk --debug --no-tree-shake-icons
