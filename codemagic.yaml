@@ -8,16 +8,13 @@ workflows:
       java: 11
       flutter: stable
     scripts:
-      - name: Get Flutter packages
-        script: flutter pub get
-      - name: Build and Locate APK
+      - name: Build APK
         script: |
           export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-11.jdk/Contents/Home"
+          flutter pub get
           flutter build apk --debug --no-tree-shake-icons
-          # Find EVERY apk and put it in the top level root folder
-          find . -name "*.apk" -exec cp {} . \;
     artifacts:
-      - "*.apk"
+      - build/app/outputs/flutter-apk/*.apk
     publishing:
       email:
         recipients:
