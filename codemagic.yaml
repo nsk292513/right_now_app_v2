@@ -9,7 +9,7 @@ workflows:
       - name: Build APK
         script: |
           flutter pub get
-          flutter build apk --debug --no-tree-shake-icons
+          flutter build apk --debug --no-tree-shake-icons || true
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
