@@ -6,11 +6,10 @@ workflows:
       java: 17
       flutter: stable
     scripts:
-      - name: Force Build
+      - name: Build APK
         script: |
           flutter pub get
-          flutter build apk --debug --no-tree-shake-icons || true
-          echo "Build finished even with errors"
+          flutter build apk --debug --no-tree-shake-icons
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
